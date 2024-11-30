@@ -1,9 +1,6 @@
 "use client";
 
 import React from "react";
-// import Tab from "..";
-// import './TabBar.module.css';
-// import styles from "./tabBar.module.css";
 import Tab from "../Tab/Tab";
 
 interface TabBarProps {
@@ -14,22 +11,24 @@ interface TabBarProps {
 
 const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onTabClick }) => {
   return (
-    <div className="flex flex-row-reverse w-full" style={{ alignItems: "end"}}>
+    <div className="flex flex-row-reverse w-full items-end" >
       {/* Tab List */}
-      <hr style={{ border: "1px solid green", width: "100%" }} />
+      <hr className="border-t border-primaryColor w-full" />
 
-      <div className="ml-auto flex flex-row ">
+      <div className="ml-auto flex flex-row">
         {tabs.map((tab, index) => (
           <div className="flex flex-row items-end" key={tab.id}>
-            <div  className="w-[250px] d-flex flex-row">
+            <div className="w-fit flex flex-row">
               <Tab
                 label={tab.label}
                 onClick={() => onTabClick(tab.id)}
                 active={activeTab === tab.id}
               />
+              
             </div>
+            <div className="h-[1px] bg-primaryColor w-[10px]"></div>
             {index !== tabs.length - 1 && (
-              <hr style={{ border: "1px solid green", width: "10%" }} />
+              <hr className="border-r primaryColor h-8" />
             )}
           </div>
         ))}

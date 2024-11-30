@@ -2,8 +2,6 @@
 
 import React from "react";
 import clsx from "clsx";
-// import './tab.module.css';
-// import styles from "./tab.module.css";
 
 interface TabProps {
   label: string;
@@ -16,21 +14,13 @@ const Tab: React.FC<TabProps> = ({ label, onClick, active }) => {
     <div
       onClick={onClick}
       className={clsx(
-        "cursor-pointer px-2 py-2 text-sm text-center transition-all duration-300",
+        "cursor-pointer px-4 py-2 text-sm text-center transition-all duration-300 rounded-t-md",
         active
-          ? "text-black font-bold "
-          : "text-black bg-gray-200 hover:bg-gray-100"
+          ? "text-black font-bold border-t-2 border-l-2 border-r-2 border-primaryColor bg-white"
+          : "text-black bg-gray-200 border border-primaryColor hover:bg-gray-100"
       )}
-      style={{
-        borderTop: "1.9px solid green",
-        borderLeft: "1.9px solid green",
-        borderRight: "1.9px solid green",
-        borderTopLeftRadius: "5px",
-        borderTopRightRadius: "5px",
-        borderBottom: active ? "1.9px solid white" : "1.9px solid green",
-      }}
     >
-      <div className="mx-6">{label}</div>
+      <span className="inline-block mx-6 truncate">{label}</span>
     </div>
   );
 };

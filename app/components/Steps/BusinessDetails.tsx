@@ -1,99 +1,28 @@
 import Image from "next/image";
 import React from "react";
+import TextInput from "../Input/TextInput";
+import { fields } from "../fields";
 
 const BusinessDetails = () => {
-  const fields = [
-    {
-      name: "ID",
-      value: "A001",
-      component: "none",
-      editable: false,
-    },
-    {
-      name: "Nombre de la empresa",
-      value: "Proem Security",
-      component: "textfield",
-      editable: false,
-    },
-    {
-      name: "Descripcion detallada",
-      value:
-        "Empresa encargada a intalación y mantenimiento de integración tecnológica",
-      component: "textarea",
-      editable: false,
-    },
-    {
-      name: "Alias",
-      value: "PROEM",
-      component: "textfield",
-      editable: false,
-    },
-    {
-      name: "Ubicación",
-      value: "Bogota, Colombia",
-      component: "textfield",
-      editable: false,
-    },
-    {
-      name: "Características",
-      value: ["Mecánico", "Material Plastico", "Text", "Text"],
-      component: "multitextfield",
-      editable: false,
-    },
-    {
-      name: "Categoría",
-      value: "Servicios",
-      component: "textfield",
-      editable: false,
-    },
-  ];
-
-  const fields2 = [
-    {
-      name: "Activo",
-      value: "true",
-      component: "checkbox",
-      editable: false,
-    },
-    {
-      name: "Persona Encargada",
-      value: "Julio Esparragoza",
-      component: "textfield",
-      editable: false,
-    },
-    {
-      name: "Correo Electrónico",
-      value: "veronika@proemsecurity.com",
-      component: "textfield",
-      editable: false,
-    },
-  ];
-
-  const renderField = (field: (typeof fields)[0]) => (
+  const renderField = (field: typeof fields[0], index: number) => (
     <div
       className="flex flex-row gap-10 justify-between text-start"
-      key={field.name}
+      key={`${field.name}-${index}`}
     >
       <p style={{ width: "50%" }} className="font-bold">{field.name}</p>
       <div style={{ width: "50%" }}>{renderInput(field)}</div>
     </div>
   );
 
-  const renderInput = (input: (typeof fields)[0]) => {
+  const renderInput = (input: typeof fields[0]) => {
     switch (input.component) {
       case "textfield":
         return (
-          <input
-            type="text"
-            value={input.value}
+          <TextInput
+            value={input.value as string}
             name={input.name}
-            disabled={!input.editable}
-            style={{
-              width: "250px",
-              padding: 5,
-              border: "1px solid #ccc",
-              borderRadius: 5,
-            }}
+            editable={input.editable}
+            onChange={(e) => console.log(e.target.value)}
           />
         );
       case "textarea":
@@ -125,6 +54,7 @@ const BusinessDetails = () => {
           >
             {(input.value as string[]).map((value, idx) => (
               <input
+                key={idx}
                 type="text"
                 value={value}
                 name={input.name + idx}
@@ -163,13 +93,17 @@ const BusinessDetails = () => {
     }
   };
 
+  // Separa los campos en dos grupos si quieres mantener la misma división
+  const group1 = fields.slice(0, 7); // Por ejemplo, los primeros 7 campos
+  const group2 = fields.slice(7); // Los campos restantes
+
   return (
-    <section className="flex flex-row ml-[80px] mr-[50px] justify-between mt-10">
-      <div className="flex gap-4 flex-col">
-        {fields.map((field) => renderField(field))}
+    <section className="flex flex-col md:flex-row ml-[80px] mr-[50px] justify-between mt-10">
+      <div className="flex gap-4 flex-col w-full md:w-1/2">
+        {group1.map((field, index) => renderField(field, index))}
       </div>
-      <div className="flex gap-4 flex-col">
-        {fields2.map((field) => renderField(field))}
+      <div className="flex gap-4 flex-col w-full md:w-1/2">
+        {group2.map((field, index) => renderField(field, index))}
         <div key={"Logo"}>
           <p className="font-bold">Logo Empresa</p>
           <Image

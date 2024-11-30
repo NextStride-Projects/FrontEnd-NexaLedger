@@ -2,11 +2,11 @@
 
 import "@/app/globals.css";
 import Image from "next/image";
-import TabBar from "./components/Containers/TabBar";
+import TabBar from "../../components/Containers/TabBar";
+import BusinessDetails from "../../components/Steps/BusinessDetails";
+import LastestMovements from "../../components/Steps/LastestMovements";
+import Button from "../../components/Button/Button";
 import { useState } from "react";
-import BusinessDetails from "./components/Steps/BusinessDetails";
-import LastestMovements from "./components/Steps/LastestMovements";
-import Button from "./components/Button/Button";
 
 interface ITab {
   id: number;
