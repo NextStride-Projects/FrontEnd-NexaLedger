@@ -3,21 +3,28 @@
 import React from "react";
 
 interface TextInputProps {
-  value: string;
+  // value?: string;
+  variant?: "disable" | "active";
   name: string;
   editable: boolean;
+  type?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const TextInput: React.FC<TextInputProps> = ({ value, name, editable, onChange }) => {
+const TextInput: React.FC<TextInputProps> = ({ name, editable, type, variant = "active", onChange }) => {
+  const baseStyles = "w-[250px] p-2 border rounded-md";
+  const disableStyles = "border-grayColor bg-grayColor focus:border-primaryColor focus:outline-none";
+  const activeStyles = "border-primaryColor focus:outline-none bg-whiteColor";
+
   return (
     <input
-      type="text"
-      value={value}
+      type={type}
+      // value={value}
       name={name}
+      autoComplete="off"
       disabled={!editable}
       onChange={onChange}
-      className="w-[250px] p-2 border border-grayColor rounded-md focus:border-primaryColor focus:outline-none"
+      className={`${baseStyles} ${variant === "active" ? activeStyles : disableStyles}`}
     />
   );
 };

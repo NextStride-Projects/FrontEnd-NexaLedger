@@ -19,7 +19,7 @@ const BusinessDetails = () => {
       case "textfield":
         return (
           <TextInput
-            value={input.value as string}
+            // value={input.value as string}
             name={input.name}
             editable={input.editable}
             onChange={(e) => console.log(e.target.value)}
