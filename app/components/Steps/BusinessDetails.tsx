@@ -98,7 +98,7 @@ const BusinessDetails = () => {
   const group2 = fields.slice(7); // Los campos restantes
 
   return (
-    <section className="flex flex-col md:flex-row ml-[80px] mr-[50px] justify-between mt-10">
+    <section className="flex flex-col md:flex-row ml-[10px] mr-[30px] justify-between mt-10">
       <div className="flex gap-4 flex-col w-full md:w-1/2">
         {group1.map((field, index) => renderField(field, index))}
       </div>

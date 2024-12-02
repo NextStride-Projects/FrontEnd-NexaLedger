@@ -9,12 +9,13 @@ interface TextInputProps {
   editable: boolean;
   type?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  style?: string;
 }
 
-const TextInput: React.FC<TextInputProps> = ({ name, editable, type, variant = "active", onChange }) => {
+const TextInput: React.FC<TextInputProps> = ({ name, editable, type, variant = "active", onChange, style }) => {
   const baseStyles = "w-[250px] p-2 border rounded-md";
-  const disableStyles = "border-grayColor bg-grayColor focus:border-primaryColor focus:outline-none";
-  const activeStyles = "border-primaryColor focus:outline-none bg-whiteColor";
+  const disableStyles = "border-grayColor bg-grayColor focus:border-primaryColor focus:outline-none w-full";
+  const activeStyles = "border-primaryColor focus:outline-none bg-whiteColor w-full";
 
   return (
     <input

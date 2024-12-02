@@ -14,7 +14,7 @@ interface ITab {
   component: JSX.Element;
 }
 
-export default function Home() {
+export default function BussinessPage() {
   const [activeTab, setActiveTab] = useState(1);
 
   const tabs: ITab[] = [
@@ -28,7 +28,8 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+    // flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4
+    <main className="">
       <div className="p-6 m-4 bg-white rounded-lg shadow-md w-full max-w-[1600px] min-h-[700px]">
         <header className="flex flex-col sm:flex-row items-center justify-between my-4 gap-4">
           <nav className="text-gray-600">
