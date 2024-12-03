@@ -1,9 +1,9 @@
 import React from 'react'
 
-const LastestMovements = () => {
+const LatestMovements = () => {
   return (
     <div>LastestMovements</div>
   )
 }
 
-export default LastestMovements
+export default LatestMovements

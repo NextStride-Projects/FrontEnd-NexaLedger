@@ -2,10 +2,10 @@
 
 import "@/app/globals.css";
 import Image from "next/image";
-import TabBar from "../../components/Containers/TabBar";
-import BusinessDetails from "../../components/Steps/BusinessDetails";
-import LastestMovements from "../../components/Steps/LastestMovements";
-import Button from "../../components/Button/Button";
+import TabBar from "../../../components/Containers/TabBar";
+import BusinessDetails from "../../../components/Steps/BusinessDetails";
+import LatestMovements from "../../../components/Steps/LatestMovements";
+import Button from "../../../components/Button/Button";
 import { useState } from "react";
 
 interface ITab {
@@ -14,12 +14,12 @@ interface ITab {
   component: JSX.Element;
 }
 
-export default function BussinessPage() {
+export default function BusinessPage() {
   const [activeTab, setActiveTab] = useState(1);
 
   const tabs: ITab[] = [
     { id: 1, label: "Detalles de la Empresa", component: <BusinessDetails /> },
-    { id: 2, label: "Últimos Movimientos", component: <LastestMovements /> },
+    { id: 2, label: "Últimos Movimientos", component: <LatestMovements /> },
   ];
 
   const renderTabComponent = () => {
@@ -36,8 +36,16 @@ export default function BussinessPage() {
             Inventario &gt; Artículos &gt; Detalle Teclado
           </nav>
           <div className="flex flex-row items-center gap-4">
-            <Button label="VOLVER" onClick={() => console.log('Volver clicked')} variant="default" />
-            <Button label="EDITAR" onClick={() => console.log('Editar clicked')} variant="primary" />
+            <Button
+              label="VOLVER"
+              onClick={() => console.log("Volver clicked")}
+              variant="default"
+            />
+            <Button
+              label="EDITAR"
+              onClick={() => console.log("Editar clicked")}
+              variant="primary"
+            />
           </div>
         </header>
         <TabBar tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />

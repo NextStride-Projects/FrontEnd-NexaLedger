@@ -1,12 +1,11 @@
 "use client";
 
 import "@/app/globals.css";
-import { useState } from "react";
-import Button from "../../components/Button/Button";
+import Button from "../../../components/Button/Button";
 
 interface IResourcesColumn {
   id: number;
-  name: string;
+  name: string; 
   size: number;
   location: string;
   available: boolean;

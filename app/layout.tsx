@@ -1,8 +1,5 @@
-"use client";
 
 import React from "react";
-import Sidebar from "@/app/components/Sidebar/Sidebar";
-import TopBar from "@/app/components/Sidebar/TopBar";
 import "@/app/globals.css";
 
 export default function RootLayout({
