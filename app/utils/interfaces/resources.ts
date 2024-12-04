@@ -1,15 +1,16 @@
+// app/utils/interfaces/resources.ts
+
 export interface IResource {
     id: number;
     name: string;
     description: string;
     features: string[];
     category: string;
-    size: number;
     available: boolean;
     saleAvailability: boolean;
     price: number;
-    cost: number;
-    image: string;
+    size: number; // Agregamos 'size'
+    image: string; // Agregamos 'image'
   }
   
 

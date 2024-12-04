@@ -1,3 +1,4 @@
+// app/pages/resources/page.tsx
 "use client";
 
 import "@/app/globals.css";

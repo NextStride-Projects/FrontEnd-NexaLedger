@@ -1,3 +1,5 @@
+// utils/dataFake/resources.ts
+
 const resources = [
   {
     id: 1,

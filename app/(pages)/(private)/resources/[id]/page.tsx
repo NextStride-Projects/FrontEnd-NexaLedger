@@ -1,56 +1,46 @@
 "use client";
-
 import ResourceDetails from "@/app/components/Steps/resourcesSteps/ResourcesDetails";
-import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import resources from "@/app/utils/dataFake/resources";
-import movements from "@/app/utils/dataFake/lastMovementResources";
+import { fetchResourceById } from "@/app/utils/api";
 import Button from "@/app/components/Button/Button";
 import LatestMovements from "@/app/components/Steps/resourcesSteps/LatestMovements";
 import TabBar from "@/app/components/Containers/TabBar";
+import { useResourceStore } from "@/app/store/useResourceStore";
+// import { IResource } from "@/app/utils/interfaces/resources";
 
 export default function ResourceDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const resourceId = parseInt(params.id as string, 10);
-  const [resource, setResource] = useState<any | null>(null);
+
+  const { resource, isEditMode, setResource, toggleEditMode } = useResourceStore(); // Extraemos el estado de la store
   const [activeTab, setActiveTab] = useState(1);
+  const [loading, setLoading] = useState(true);
 
-  // Inicializamos el estado isEditMode en función del parámetro de la URL
-  const [isEditMode, setIsEditMode] = useState(searchParams.get("edit") === "true");
-
-  // Función para manejar el cambio de valores
-  const handleChange = (name: string, value: string) => {
-    setResource((prevResource: any) => ({
-      ...prevResource,
-      [name]: value,
-    }));
-  };
-
-  // Buscar el recurso de manera segura
   useEffect(() => {
-    if (resourceId) {
-      const foundResource = resources.find((item) => item.id === resourceId);
-      setResource(foundResource || null);
-    }
-  }, [resourceId]);
+    const loadResource = async () => {
+      if (resourceId) {
+        setLoading(true);
+        const fetchedResource = await fetchResourceById(resourceId);
+        if (fetchedResource) {
+          setResource(fetchedResource); // Establecer el recurso en la store
+        }
+        setLoading(false);
+      }
+    };
 
-  // Función para alternar el modo de edición
-  const toggleEditMode = () => {
-    // Alternar el estado de isEditMode
-    setIsEditMode((prev) => !prev);
-
-    // Actualizamos la URL con el parámetro 'edit'
-    router.push(`/resources/${resourceId}?edit=${!isEditMode}`);
-  };
+    loadResource();
+  }, [resourceId, setResource]);
 
   const tabs = [
     {
       id: 1,
       label: "Detalles del Recurso",
-      component: resource ? (
-        <ResourceDetails resource={resource} isEditMode={isEditMode} handleChange={handleChange} />
+      component: loading ? (
+        <p>Cargando...</p>
+      ) : resource ? (
+        <ResourceDetails resource={resource} isEditMode={isEditMode} />
       ) : (
         <p>Recurso no encontrado</p>
       ),
@@ -58,7 +48,7 @@ export default function ResourceDetailsPage() {
     {
       id: 2,
       label: "Últimos Movimientos",
-      component: <LatestMovements movements={movements} />,
+      component: <LatestMovements movements={[]} />,  // Aquí puedes integrar los movimientos
     },
   ];
 
@@ -67,7 +57,6 @@ export default function ResourceDetailsPage() {
     return currentTab?.component || null;
   };
 
-  // Si no se encuentra el recurso, mostramos un mensaje
   if (!resourceId || !resource) {
     return <p className="text-red-600">Recurso no encontrado</p>;
   }
