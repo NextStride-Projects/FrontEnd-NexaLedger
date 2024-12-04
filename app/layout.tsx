@@ -25,7 +25,7 @@ export default function RootLayout({
       </div>
       <footer className="bg-primaryColor text-white text-center py-2 mt-auto" style={{ width: "100%" }}>
         <p style={{ fontSize: "13px" }}>
-          &copy; {currentYear} Your Company. All rights reserved.
+          &copy; {currentYear} NexaLedger. All rights reserved.
         </p>
       </footer>
     </div>

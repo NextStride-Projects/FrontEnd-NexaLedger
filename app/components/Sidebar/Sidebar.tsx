@@ -7,35 +7,45 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div
-      className={`flex flex-col items-start justify-start ${
-        isOpen ? "w-[100px]" : "w-[40px]"
-      } bg-primaryColor text-white transition-width duration-300 ease-in-out`}
-      style={{ position: "fixed", top: 0, left: 0, height: "100%" }}
-    >
-      {/* Botón del menú */}
+    <>
       <button
-        className="p-2 hover:bg-opacity-70 rounded"
+        className="fixed top-1 left-3 p-2 bg-primaryColor text-white rounded z-50"
         onClick={() => setIsOpen(!isOpen)}
       >
         <HiMenu className="text-2xl" />
       </button>
 
-      {/* Contenido del sidebar */}
-      {isOpen && (
-        <div className="flex flex-col items-center mt-4">
-          <a href="#" className="py-2 hover:bg-opacity-70 px-4 rounded">
-            Link 1
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 left-0 h-full bg-primaryColor text-white transform ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out z-40`}
+        style={{ width: "250px" }}
+      >
+        <div className="flex flex-col items-start mt-4 px-4">
+          <a
+            href="/resources"
+            className="py-2 px-2 mt-[30px] w-full rounded hover:bg-primaryColorDark transition-colors"
+          >
+            Inventario
           </a>
-          <a href="#" className="py-2 hover:bg-opacity-70 px-4 rounded">
-            Link 2
-          </a>
-          <a href="#" className="py-2 hover:bg-opacity-70 px-4 rounded">
-            Link 3
+          <a
+            href="/business"
+            className="py-2 px-2 w-full rounded hover:bg-primaryColorDark transition-colors"
+          >
+            Empresa
           </a>
         </div>
+      </div>
+
+      {/* Overlay cuando el sidebar está abierto */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30"
+          onClick={() => setIsOpen(false)}
+        />
       )}
-    </div>
+    </>
   );
 };
 

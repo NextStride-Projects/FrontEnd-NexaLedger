@@ -10,16 +10,12 @@ export default function RootLayout({
 }>) {
   const currentYear = new Date().getFullYear();
 
-  return (
-
-
-      
+  return (      
     <div>
       <TopBar />
       <div>
         <Sidebar /> 
-        <section>
-        {/* mt-[30px] ml-[40px] */}
+        <section className="mt-[60px] mx-[20px] bg-whiteColor p-4 rounded">
           {children}
         </section>
       </div>

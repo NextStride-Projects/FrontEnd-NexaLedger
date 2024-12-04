@@ -3,10 +3,11 @@
 import "@/app/globals.css";
 import Image from "next/image";
 import TabBar from "../../../components/Containers/TabBar";
-import BusinessDetails from "../../../components/Steps/BusinessDetails";
-import LatestMovements from "../../../components/Steps/LatestMovements";
+// import BusinessDetails from "../../../components/Steps/ResourcesDetails";
+import LatestMovements from "../../../components/Steps/resourcesSteps/LatestMovements";
 import Button from "../../../components/Button/Button";
 import { useState } from "react";
+// import ResourcesDetails from "../../../components/Steps/ResourcesDetails";
 
 interface ITab {
   id: number;
@@ -18,7 +19,7 @@ export default function BusinessPage() {
   const [activeTab, setActiveTab] = useState(1);
 
   const tabs: ITab[] = [
-    { id: 1, label: "Detalles de la Empresa", component: <BusinessDetails /> },
+    // { id: 1, label: "Detalles de la Empresa", component: <ResourcesDetails /> },
     { id: 2, label: "Últimos Movimientos", component: <LatestMovements /> },
   ];
 
