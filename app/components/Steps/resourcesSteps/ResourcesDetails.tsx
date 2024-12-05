@@ -1,22 +1,32 @@
-import { useEffect, useState } from "react";
-import { IResource } from "@/app/utils/interfaces/resources";
-import TextInput from "@/app/components/Input/TextInput";
+import { useEffect, useState } from 'react';
+import TextInput from '@/app/components/Input/TextInput';
+
+interface Resource {
+  id: number;
+  name: string;
+  description: string;
+  features: string[];
+  category: string;
+  price: number;
+}
 
 interface ResourceDetailsProps {
-  resource: IResource;
+  resource: Resource;
   isEditMode: boolean;
-  handleSave: () => void;
+  handleSave: (updatedResource: Resource) => void;
 }
 
 const ResourceDetails = ({ resource, isEditMode, handleSave }: ResourceDetailsProps) => {
-  const [editableResource, setEditableResource] = useState<IResource>(resource);
+  const [editableResource, setEditableResource] = useState<Resource>(resource);
 
   useEffect(() => {
+    console.log('[ResourceDetails] useEffect - resource updated:', resource);
     setEditableResource(resource);
   }, [resource]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    console.log(`[ResourceDetails] handleChange - field: ${name}, value: ${value}`);
     setEditableResource((prevResource) => ({
       ...prevResource,
       [name]: value,
@@ -30,7 +40,7 @@ const ResourceDetails = ({ resource, isEditMode, handleSave }: ResourceDetailsPr
           <TextInput
             label="ID"
             name="id"
-            value={editableResource.id}
+            value={editableResource.id.toString()}
             editable={false}
             onChange={handleChange}
           />
@@ -49,29 +59,13 @@ const ResourceDetails = ({ resource, isEditMode, handleSave }: ResourceDetailsPr
             isTextArea={true}
             onChange={handleChange}
           />
-          <div className="flex flex-col gap-2">
-            <label htmlFor="resource-features" className="text-gray-700">Características</label>
-            <div className="flex flex-wrap gap-2">
-              {editableResource.features.map((feature, index) => (
-                <span key={index} className="px-3 py-1 border rounded-md">{feature}</span>
-              ))}
-            </div>
-          </div>
-          <TextInput
-            label="Categoría"
-            name="category"
-            value={editableResource.category}
-            editable={isEditMode}
-            onChange={handleChange}
-          />
         </div>
-
         <div className="flex flex-col gap-4 w-full sm:w-1/2">
           <TextInput
             label="Precio"
             name="price"
             type="number"
-            value={editableResource.price}
+            value={editableResource.price.toString()}
             editable={isEditMode}
             onChange={handleChange}
           />
@@ -81,7 +75,7 @@ const ResourceDetails = ({ resource, isEditMode, handleSave }: ResourceDetailsPr
         <div className="mt-4">
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded"
-            onClick={handleSave}
+            onClick={() => handleSave(editableResource)}
           >
             Guardar
           </button>
