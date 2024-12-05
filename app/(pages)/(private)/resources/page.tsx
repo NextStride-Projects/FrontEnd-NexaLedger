@@ -1,24 +1,40 @@
-// app/pages/resources/page.tsx
 "use client";
 
 import "@/app/globals.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { HiChevronRight } from "react-icons/hi";
 import { HiCheck, HiX } from "react-icons/hi";
 import Button from "@/app/components/Button/Button";
-import resources from "@/app/utils/dataFake/resources";
+import { useResourceStore } from "@/app/store/useResourceStore";  // Usamos la store correcta
+import { fetchResources } from "@/app/utils/api";
 
 export default function ResourcesPage() {
   const router = useRouter();
 
+  const { resources, setResources } = useResourceStore(); // Usamos la lista de recursos
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<"name" | "size" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const itemsPerPage = 10;
 
-  const sortedResources = [...resources].sort((a, b) => {
+  useEffect(() => {
+    // Aquí cargamos los recursos desde la API
+    const loadResources = async () => {
+      try {
+        const resourcesData = await fetchResources(); // Obtiene los recursos directamente desde la API
+        setResources(resourcesData); // Actualiza los recursos en el estado
+      } catch (error) {
+        console.error("Error al cargar los recursos:", error);
+      }
+    };
+  
+    loadResources();
+  }, [setResources]);
+  
+
+  const sortedResources = [...(resources || [])].sort((a, b) => {
     if (!sortBy) return 0;
     const fieldA = a[sortBy];
     const fieldB = b[sortBy];
@@ -109,7 +125,7 @@ export default function ResourcesPage() {
           <HiChevronRight className="transform rotate-180 text-white" />
         </button>
         <span>
-          Pagina {currentPage} de {totalPages}
+          Página {currentPage} de {totalPages}
         </span>
         <button
           disabled={currentPage === totalPages}

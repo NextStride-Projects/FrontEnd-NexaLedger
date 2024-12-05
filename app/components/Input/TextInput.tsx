@@ -11,7 +11,6 @@ interface TextInputProps {
   type?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   style?: string;
-  // id?: string;
   isTextArea?: boolean;
 }
 
@@ -28,7 +27,6 @@ const TextInput: React.FC<TextInputProps> = ({ label, name, editable, type, vari
         value={value}
         name={name}
         autoComplete="off"
-        // Invert the logic for 'disabled'. Now it's disabled when editable is false.
         disabled={!editable}
         onChange={onChange}
         className={`${baseStyles} ${variant === "active" ? activeStyles : disableStyles}`}

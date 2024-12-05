@@ -1,4 +1,5 @@
 "use client";
+
 import ResourceDetails from "@/app/components/Steps/resourcesSteps/ResourcesDetails";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -7,16 +8,29 @@ import Button from "@/app/components/Button/Button";
 import LatestMovements from "@/app/components/Steps/resourcesSteps/LatestMovements";
 import TabBar from "@/app/components/Containers/TabBar";
 import { useResourceStore } from "@/app/store/useResourceStore";
-// import { IResource } from "@/app/utils/interfaces/resources";
 
 export default function ResourceDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const resourceId = parseInt(params.id as string, 10);
 
-  const { resource, isEditMode, setResource, toggleEditMode } = useResourceStore(); // Extraemos el estado de la store
+  const { resources, isEditMode, setResource, toggleEditMode } = useResourceStore();
+
   const [activeTab, setActiveTab] = useState(1);
   const [loading, setLoading] = useState(true);
+
+  const resource = resources.find((res) => res.id === resourceId);
+
+  const handleSave = () => {
+    if (resource) {
+      console.log("Guardando el recurso actualizado:", resource);
+
+      setResource(resource);
+      console.log("Recurso guardado en la store:", resource);
+
+      toggleEditMode();
+    }
+  };
 
   useEffect(() => {
     const loadResource = async () => {
@@ -24,14 +38,14 @@ export default function ResourceDetailsPage() {
         setLoading(true);
         const fetchedResource = await fetchResourceById(resourceId);
         if (fetchedResource) {
-          setResource(fetchedResource); // Establecer el recurso en la store
+          setResource(fetchedResource);
         }
         setLoading(false);
       }
     };
 
     loadResource();
-  }, [resourceId, setResource]);
+  }, [resourceId]);
 
   const tabs = [
     {
@@ -40,7 +54,7 @@ export default function ResourceDetailsPage() {
       component: loading ? (
         <p>Cargando...</p>
       ) : resource ? (
-        <ResourceDetails resource={resource} isEditMode={isEditMode} />
+        <ResourceDetails resource={resource} isEditMode={isEditMode} handleSave={handleSave} />
       ) : (
         <p>Recurso no encontrado</p>
       ),
@@ -48,7 +62,7 @@ export default function ResourceDetailsPage() {
     {
       id: 2,
       label: "Últimos Movimientos",
-      component: <LatestMovements movements={[]} />,  // Aquí puedes integrar los movimientos
+      component: <LatestMovements movements={[]} />, 
     },
   ];
 
@@ -75,7 +89,7 @@ export default function ResourceDetailsPage() {
           />
           <Button
             label={isEditMode ? "GUARDAR" : "EDITAR"}
-            onClick={toggleEditMode}
+            onClick={handleSave}
             variant={"primary"}
           />
         </div>

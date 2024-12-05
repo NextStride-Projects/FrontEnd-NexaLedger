@@ -9,9 +9,9 @@ export interface IResource {
     available: boolean;
     saleAvailability: boolean;
     price: number;
-    size: number; // Agregamos 'size'
-    image: string; // Agregamos 'image'
-  }
+    size: number;
+    image: string;
+}
   
 
 interface InputFieldProps {

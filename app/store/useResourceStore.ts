@@ -1,3 +1,4 @@
+// app/store/useResourceStore.ts
 import { create } from 'zustand';
 
 interface Resource {
@@ -14,20 +15,23 @@ interface Resource {
 }
 
 interface ResourceStore {
-  resource: Resource | null;
+  resources: Resource[];  // Lista de recursos
   isEditMode: boolean;
-  setResource: (newResource: Partial<Resource>) => void;  // Cambiar a Partial<Resource>
+  setResource: (updatedResource: Resource) => void;
+  setResources: (newResources: Resource[]) => void;  // Función para establecer todos los recursos
   toggleEditMode: () => void;
 }
 
 export const useResourceStore = create<ResourceStore>((set) => ({
-  resource: null,
+  resources: [],  // Almacenamos una lista de recursos
   isEditMode: false,
-  setResource: (newResource) => set((state) => ({
-    resource: state.resource
-      ? { ...state.resource, ...newResource }
-      : newResource as Resource,
-  })),
+  setResource: (updatedResource) =>
+    set((state) => ({
+      resources: state.resources.map((resource) =>
+        resource.id === updatedResource.id ? updatedResource : resource
+      ),
+    })),
+  setResources: (newResources) => set(() => ({ resources: newResources })),
   toggleEditMode: () => set((state) => ({
     isEditMode: !state.isEditMode,
   })),
