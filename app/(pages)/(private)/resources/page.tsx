@@ -1,7 +1,7 @@
 "use client";
 
 import "@/app/globals.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, AwaitedReactNode, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from "react";
 import { useRouter } from "next/navigation";
 import { useResourceStore } from "@/app/store/useResourceStore";
 import { fetchResources } from "@/app/utils/api";
@@ -48,7 +48,7 @@ export default function ResourcesPage() {
           </tr>
         </thead>
         <tbody>
-          {currentPageItems.map((resource) => (
+          {currentPageItems.map((resource: { id: Key | null | undefined; name: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; size: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; available: any; }) => (
             <tr key={resource.id} className="odd:bg-white even:bg-gray-50">
               <td className="border border-gray-300 px-4 py-2">{resource.name}</td>
               <td className="border border-gray-300 px-4 py-2">{resource.size}</td>

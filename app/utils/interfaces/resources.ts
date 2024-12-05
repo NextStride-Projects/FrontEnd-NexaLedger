@@ -6,11 +6,11 @@ export interface IResource {
     description: string;
     features: string[];
     category: string;
-    available: boolean;
-    saleAvailability: boolean;
+    // available: boolean;
+    // saleAvailability: boolean;
     price: number;
-    size: number;
-    image: string;
+    // size: number;
+    // image: string;
 }
   
 

@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { fetchResourceById, updateResource } from "@/app/utils/api"; // Nueva función para actualizar
+import { fetchResourceById, updateResource } from "@/app/utils/api";
 import { useResourceStore } from "@/app/store/useResourceStore";
 import ResourceDetails from "@/app/components/Steps/resourcesSteps/ResourcesDetails";
 import Button from "@/app/components/Button/Button";
@@ -19,14 +19,23 @@ export default function ResourceDetailsPage() {
   const [activeTab, setActiveTab] = useState(1);
   const [loading, setLoading] = useState(true);
 
-  const resource = resources.find((res) => res.id === resourceId);
+  const resource = resources.find((res: IResource) => res.id === resourceId);
 
   const handleSave = async (updatedResource: IResource) => {
     console.log("[ResourceDetailsPage] handleSave - saving updated resource:", updatedResource);
 
     try {
-      await updateResource(updatedResource); // Sincroniza con el backend
-      setResource(updatedResource); // Actualiza en el store
+      const completeResource: IResource = {
+        ...resource,  // Existing resource data
+        ...updatedResource,  // Updated properties
+        // available: updatedResource.available ?? resource?.available ?? false,
+        // saleAvailability: updatedResource.saleAvailability ?? resource?.saleAvailability ?? false,
+        // size: updatedResource.size ?? resource?.size ?? 0,
+        // image: updatedResource.image ?? resource?.image ?? "",
+      };
+
+      await updateResource(completeResource); // Sincroniza con el backend
+      setResource(completeResource); // Actualiza en el store
       console.log("[ResourceDetailsPage] Resource updated successfully.");
       toggleEditMode();
     } catch (error) {
@@ -79,7 +88,7 @@ export default function ResourceDetailsPage() {
           <Button label="VOLVER" onClick={() => router.push("/resources")} variant="default" />
           <Button
             label={isEditMode ? "GUARDAR" : "EDITAR"}
-            onClick={() => (isEditMode ? handleSave(resource) : toggleEditMode())}
+            onClick={() => (isEditMode ? handleSave(resource!) : toggleEditMode())}
             variant="primary"
           />
         </div>
