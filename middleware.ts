@@ -1,25 +1,37 @@
-// import { NextResponse } from "next/server";
-// import type { NextRequest } from "next/server";
-// import jwt from "jsonwebtoken";
+import { NextRequest, NextResponse } from "next/server";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
-// const SECRET_KEY = "tu_secreto";
+function decodeAndValidateToken(token: string): boolean {
+  try {
+    const decoded = jwt.decode(token) as JwtPayload;
 
-export function middleware() {
-//   const protectedRoutes = ["/resources", "/dashboard"];
+    if (!decoded || !decoded.exp) {
+      throw new Error("Invalid token structure");
+    }
 
-//   const token = request.cookies.get("authToken")?.value || request.headers.get("Authorization")?.split("Bearer ")[1];
+    const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    if (decoded.exp < currentTime) {
+      return false; // Token has expired
+    }
 
-//   if (protectedRoutes.some((route) => request.nextUrl.pathname.startsWith(route))) {
-//     if (!token) {
-//       return NextResponse.redirect(new URL("/login", request.url));
-//     }
-
-//     try {
-//       jwt.verify(token, SECRET_KEY);
-//     } catch (error) {
-//       return NextResponse.redirect(new URL("/login", request.url));
-//     }
-//   }
-
-//   return NextResponse.next();
+    return true; // Token is valid
+  } catch (error) {
+    console.error("Error decoding token:", (error as Error).message);
+    return false;
+  }
 }
+
+export function middleware(req: NextRequest) {
+  const token = req.cookies.get("token")?.value;
+
+  if (token && decodeAndValidateToken(token)) {
+    return;
+  }
+
+  return NextResponse.redirect(new URL("/login", req.url));
+}
+
+export const config = {
+    matcher: ["/dashboard/:path*", "/business/:path*", "/resources/:path*"],
+  };
+  

@@ -1,59 +1,41 @@
 "use client";
 
-import "@/app/globals.css";
+import { useState } from "react";
 import Image from "next/image";
-import TextInput from "@/app/components/Input/TextInput";
-import Button from "@/app/components/Button/Button";
-// import { useState } from "react";
-// import { useRouter } from "next/navigation";
-// import useSWR from "swr";
-
-// const fetcher = async ([url, token]: [string, string]) => {
-//   const response = await fetch(url, {
-//     headers: { Authorization: `Bearer ${token}` },
-//   });
-//   if (!response.ok) throw new Error("Token inválido o expirado");
-//   return response.json();
-// };
+import { useRouter } from "next/navigation";
+// import TextInput from "@/app/components/Input/TextInput";
+// import Button from "@/app/components/Button/Button";
+// import { login } from "@/app/api/auth/route"
 
 export default function Login() {
-  // const [credentials, setCredentials] = useState({ username: "", password: "" });
-  // const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  // const router = useRouter();
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
 
-  // const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setErrorMessage("");
+    setIsLoading(true);
 
-  // const { data } = useSWR(token ? ["/api/verify-token", token] : null, fetcher, {
-  //   onError: () => setErrorMessage("Token inválido o expirado"),
-  // });
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-  // if (data?.valid) router.push("/dashboard");
-
-  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { name, value } = e.target;
-  //   setCredentials((prev) => ({ ...prev, [name]: value }));
-  // };
-
-  // const handleLogin = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setErrorMessage(null);
-
-  //   try {
-  //     const response = await fetch("/api/login", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(credentials),
-  //     });
-
-  //     if (!response.ok) throw new Error((await response.json()).message || "Error de autenticación");
-
-  //     const { token } = await response.json();
-  //     localStorage.setItem("authToken", token);
-  //     router.push("/dashboard");
-  //   } catch (error: any) {
-  //     setErrorMessage(error.message || "Ocurrió un error inesperado.");
-  //   }
-  // };
+      setIsLoading(false);
+      
+      router.push(`/dashboard`)
+    } catch (error: any) {
+      setIsLoading(false);
+      setErrorMessage(error.message || "Error de red o del servidor.");
+    }
+  };
 
   return (
     <div
@@ -77,23 +59,47 @@ export default function Login() {
             Por favor, inicia sesión para continuar
           </p>
           <form className="flex flex-col space-y-4" 
-          // onSubmit={handleLogin}
+          onSubmit={handleSubmit}
           >
-            {["username", "password"].map((field) => (
-              <div key={field} className="flex flex-col">
-                <label className="mb-1 font-semibold text-gray-700">
-                  {field === "username" ? "Usuario:" : "Contraseña:"}
-                </label>
-                <TextInput
-                  name={field}
-                  type={field === "password" ? "password" : "text"}
-                  editable={true}
-                  // onChange={handleInputChange}
-                />
-              </div>
-            ))}
-            {/* {errorMessage && <p className="text-center text-red-500">{errorMessage}</p>} */}
-            <Button label="Iniciar sesión" variant="primary" type="submit" />
+
+            <label>
+          Correo Electrónico:
+          <input
+            type="email"
+            name="email"
+            placeholder="Ingrese su correo"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ width: "100%", padding: "8px" }}
+          />
+        </label>
+        <label>
+          Contraseña:
+          <input
+            type="password"
+            name="password"
+            placeholder="Ingrese su contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{ width: "100%", padding: "8px" }}
+          />
+        </label>
+        <button
+          type="submit"
+          disabled={isLoading}
+          style={{
+            padding: "10px",
+            backgroundColor: isLoading ? "#ccc" : "#007bff",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: isLoading ? "not-allowed" : "pointer",
+          }}
+        >
+          {isLoading ? "Cargando..." : "Iniciar Sesión"}
+        </button>
+        {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+
             <p className="text-center text-gray-500">¿No estás registrado? Contacta con el administrador</p>
           </form>
         </div>
