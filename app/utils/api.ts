@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { IResource } from '@/app/utils/interfaces/resources';
+import { IResource } from '@/app/utils/interfaces/resources/resources';
 
 const API_URL = 'http://localhost:5000/api/resources';
 

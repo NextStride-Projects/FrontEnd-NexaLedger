@@ -1,71 +1,105 @@
-"use client";
+import { cookies } from "next/headers";
+import SortableHeader from "@/app/components/HeaderTable/sortTableHeader";
+import Link from "next/link";
+import { FaArrowRight } from "react-icons/fa";
+import { IResource } from "@/app/utils/interfaces/resources/resources";
 
-import "@/app/globals.css";
-import { useState, useEffect, AwaitedReactNode, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from "react";
-import { useRouter } from "next/navigation";
-import { useResourceStore } from "@/app/store/useResourceStore";
-import { fetchResources } from "@/app/utils/api";
-import Button from "@/app/components/Button/Button";
-import { HiChevronRight, HiCheck, HiX } from "react-icons/hi";
+interface InventoryTableProps {
+  searchParams: Record<string, string | undefined>;
+}
 
-export default function ResourcesPage() {
-  const router = useRouter();
-  const { resources, setResources } = useResourceStore();
-  const [currentPage, setCurrentPage] = useState(1);
+export default async function InventoryTable({
+  searchParams,
+}: InventoryTableProps) {
+  const cookieStore = cookies();
+  const token = (await cookieStore).get("token")?.value;
 
-  const itemsPerPage = 10;
+  if (!token) {
+    return <div>You are not authenticated. Please log in.</div>;
+  }
 
-  useEffect(() => {
-    const loadResources = async () => {
-      if (resources.length === 0) {
-        console.log("[ResourcesPage] Cargando recursos desde la API...");
-        const resourcesData = await fetchResources();
-        setResources(resourcesData);
-      } else {
-        console.log("[ResourcesPage] Recursos ya cargados en el store.");
-      }
-    };
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/resources`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-    loadResources();
-  }, [resources, setResources]);
+    if (!response.ok) {
+      throw new Error("Failed to fetch inventory data");
+    }
 
-  const totalPages = Math.ceil(resources.length / itemsPerPage);
-  const currentPageItems = resources.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+    const inventory: IResource[] = await response.json();
 
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Recursos</h1>
-      <table className="table-auto w-full border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-200 text-left">
-            <th className="border border-gray-300 px-4 py-2">Nombre</th>
-            <th className="border border-gray-300 px-4 py-2">Cantidad</th>
-            <th className="border border-gray-300 px-4 py-2">Disponibilidad</th>
-            <th className="border border-gray-300 px-4 py-2">Detalles</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentPageItems.map((resource: { id: Key | null | undefined; name: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; size: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; available: any; }) => (
-            <tr key={resource.id} className="odd:bg-white even:bg-gray-50">
-              <td className="border border-gray-300 px-4 py-2">{resource.name}</td>
-              <td className="border border-gray-300 px-4 py-2">{resource.size}</td>
-              <td className="border border-gray-300 px-4 py-2">
-                {resource.available ? <HiCheck className="text-green-600" /> : <HiX className="text-red-600" />}
-              </td>
-              <td className="border border-gray-300 px-4 py-2">
-                <Button
-                  label={<HiChevronRight className="text-xl" />}
-                  onClick={() => router.push(`/resources/${resource.id}`)}
-                  variant="default"
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+    const sortBy = searchParams.sortBy || "name";
+    const sortDirection = searchParams.sortDirection || "asc";
+
+    return (
+      <div>
+        <h2 className="text-2xl font-semibold text-black mb-6">Inventario</h2>
+
+        <div className="rounded-lg overflow-auto h-[500px] flex items-start justify-center">
+          {inventory.length > 0 ? (
+            <table className="w-full bg-white">
+              <thead className="bg-green-800 text-white">
+                <tr>
+                  <th>
+                    <SortableHeader
+                      title="Nombre"
+                      sortByField="name"
+                      currentSortBy={sortBy}
+                      currentSortDirection={sortDirection}
+                      searchParams={searchParams}
+                    />
+                  </th>
+                  <th className="px-4 py-2 text-left font-medium">Descripción</th>
+                  <th className="px-4 py-2 text-left font-medium">Disponible</th>
+                  <th className="px-4 py-2 text-left font-medium">Tamaño</th>
+                  <th className="px-4 py-2 text-left font-medium">Características</th>
+                  <th className="px-4 py-2 text-left font-medium">Precio</th>
+                  <th className="px-4 py-2 text-left font-medium">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inventory.map((item, index) => (
+                  <tr
+                    key={item.id}
+                    className={`hover:bg-green-100 ${
+                      index % 2 === 0 ? "bg-gray-100" : "bg-white"
+                    }`}
+                  >
+                    <td className="px-4 py-2 text-gray-900">{item.name}</td>
+                    <td className="px-4 py-2 text-gray-900">{item.description}</td>
+                    <td className="px-4 py-2 text-gray-900">
+                      {item.available ? "Sí" : "No"}
+                    </td>
+                    <td className="px-4 py-2 text-gray-900">{item.size}</td>
+                    <td className="px-4 py-2 text-gray-900">
+                      {item.features.join(", ")}
+                    </td>
+                    <td className="px-4 py-2 text-gray-900">${item.price}</td>
+                    <td className="px-4 py-2 text-right">
+                      <Link
+                        href={`/dashboard/inventory/${item.id}`}
+                        className="text-green-800 hover:text-green-600"
+                      >
+                        <FaArrowRight className="inline-block" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="text-gray-500">No hay artículos en el inventario.</p>
+          )}
+        </div>
+      </div>
+    );
+  } catch (error) {
+    console.error("Failed to fetch inventory:", error);
+    return (
+      <p className="text-red-500">
+        No se pudo cargar el inventario. Intente de nuevo más tarde.
+      </p>
+    );
+  }
 }
