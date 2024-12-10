@@ -1,5 +1,7 @@
+import { UUIDTypes } from "uuid";
+
 export interface IResource {
-    id: number;
+    id: UUIDTypes;
     name: string;
     description: string;
     features: string[];
@@ -9,16 +11,9 @@ export interface IResource {
     price: number;
     size: number;
     image: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
-  
-
-// interface InputFieldProps {
-//     label: string;
-//     value: string | boolean;
-//     name: string;
-//     editable?: boolean;
-//     isTextArea?: boolean;
-// }
 
 // interface ILatestMovement {
 //     id: number;

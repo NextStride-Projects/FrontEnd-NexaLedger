@@ -1,100 +1,85 @@
-// "use client";
+import { IResource } from "@/app/utils/interfaces/resources/resources";
+import { cookies } from "next/headers";
 
-// import { useParams, useRouter } from "next/navigation";
-// import { useState, useEffect } from "react";
-// import { fetchResourceById, updateResource } from "@/app/utils/api";
-// import { useResourceStore } from "@/app/store/useResourceStore";
-// import ResourceDetails from "@/app/components/Steps/resourcesSteps/ResourcesDetails";
-// import Button from "@/app/components/Button/Button";
-// import TabBar from "@/app/components/Containers/TabBar";
-// import { IResource } from "@/app/utils/interfaces/resources";
+export default async function ResourceDetails({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const cookieStore = cookies();
+  const token = (await cookieStore).get("token")?.value;
 
-// export default function ResourceDetailsPage() {
-//   const params = useParams();
-//   const router = useRouter();
-//   const resourceId = parseInt(params.id as string, 10);
+  if (!token) {
+    return <div>You are not authenticated. Please log in.</div>;
+  }
 
-//   const { resources, isEditMode, setResource, toggleEditMode } = useResourceStore();
+  try {
+    const response = await fetch(`http://localhost:7004/api/Resource/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-//   const [activeTab, setActiveTab] = useState(1);
-//   const [loading, setLoading] = useState(true);
+    if (!response.ok) {
+      throw new Error("Failed to fetch resource details");
+    }
 
-//   const resource = resources.find((res: IResource) => res.id === resourceId);
+    const resource: IResource = await response.json();
 
-//   const handleSave = async (updatedResource: IResource) => {
-//     console.log("[ResourceDetailsPage] handleSave - saving updated resource:", updatedResource);
-
-//     try {
-//       const completeResource: IResource = {
-//         ...resource,  // Existing resource data
-//         ...updatedResource,  // Updated properties
-//         available: updatedResource.available ?? resource?.available ?? false,
-//         saleAvailability: updatedResource.saleAvailability ?? resource?.saleAvailability ?? false,
-//         size: updatedResource.size ?? resource?.size ?? 0,
-//         image: updatedResource.image ?? resource?.image ?? "",
-//       };
-
-//       await updateResource(completeResource); // Sincroniza con el backend
-//       setResource(completeResource); // Actualiza en el store
-//       console.log("[ResourceDetailsPage] Resource updated successfully.");
-//       toggleEditMode();
-//     } catch (error) {
-//       console.error("[ResourceDetailsPage] Error al guardar el recurso:", error);
-//     }
-//   };
-
-//   useEffect(() => {
-//     const loadResource = async () => {
-//       if (resourceId && !resource) {
-//         setLoading(true);
-//         const fetchedResource = await fetchResourceById(resourceId);
-//         if (fetchedResource) {
-//           setResource(fetchedResource);
-//         }
-//         setLoading(false);
-//       }
-//     };
-
-//     loadResource();
-//   }, [resourceId, resource, setResource]);
-
-//   const tabs = [
-//     {
-//       id: 1,
-//       label: "Detalles del Recurso",
-//       component: loading ? (
-//         <p>Cargando...</p>
-//       ) : resource ? (
-//         <ResourceDetails
-//           resource={resource}
-//           isEditMode={isEditMode}
-//           handleSave={(updatedResource) => handleSave(updatedResource)}
-//         />
-//       ) : (
-//         <p>Recurso no encontrado</p>
-//       ),
-//     },
-//   ];
-
-//   if (!resourceId) {
-//     return <p className="text-red-600">Recurso no encontrado</p>;
-//   }
-
-//   return (
-//     <div className="max-w-[1600px] min-h-[400px]">
-//       <header className="flex flex-col sm:flex-row items-center justify-between my-4 gap-4">
-//         <nav className="text-gray-600">Inventario &gt; {resource?.name}</nav>
-//         <div className="flex flex-row items-center gap-4">
-//           <Button label="VOLVER" onClick={() => router.push("/resources")} variant="default" />
-//           <Button
-//             label={isEditMode ? "GUARDAR" : "EDITAR"}
-//             onClick={() => (isEditMode ? handleSave(resource!) : toggleEditMode())}
-//             variant="primary"
-//           />
-//         </div>
-//       </header>
-//       <TabBar tabs={tabs} activeTab={activeTab} onTabClick={setActiveTab} />
-//       <div className="mt-6 text-gray-700">{tabs[0].component}</div>
-//     </div>
-//   );
-// }
+    return (
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          Detalles del Recurso
+        </h2>
+        <p className="text-gray-700">
+          <strong>Nombre:</strong> {resource.name}
+        </p>
+        <p className="text-gray-700">
+          <strong>Descripción:</strong> {resource.description}
+        </p>
+        <p className="text-gray-700">
+          <strong>Disponible:</strong> {resource.available ? "Sí" : "No"}
+        </p>
+        <p className="text-gray-700">
+          <strong>Tamaño:</strong> {resource.size}
+        </p>
+        <p className="text-gray-700">
+          <strong>Características:</strong>{" "}
+          {resource.features.length > 0
+            ? resource.features.join(", ")
+            : "Ninguna"}
+        </p>
+        <p className="text-gray-700">
+          <strong>Precio:</strong> ${resource.price}
+        </p>
+        <p className="text-gray-700">
+          <strong>Adquirido en:</strong>{" "}
+          {new Date(resource.createdAt).toLocaleDateString()}
+        </p>
+        <p className="text-gray-700">
+          <strong>Último movimiento:</strong>{" "}
+          {new Date(resource.updatedAt).toLocaleDateString()}
+        </p>
+        <div className="mt-6">
+          <a
+            href="/resources"
+            className="text-primaryColor hover:text-primaryColorDark"
+          >
+            Volver al inventario
+          </a>
+        </div>
+      </div>
+    );
+  } catch (error) {
+    console.error("Failed to fetch resource details:", error);
+    return (
+      <p className="text-red-500">
+        No se pudieron cargar los detalles del recurso. Intente de nuevo más
+        tarde.
+      </p>
+    );
+  }
+}

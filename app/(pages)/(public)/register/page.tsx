@@ -28,7 +28,7 @@ export default function RegisterPage() {
 
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isSuccess, setIsSuccess] = useState<boolean>(false); // Estado para mostrar el modal de éxito
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const router = useRouter();
 
   const handleChange = (
@@ -74,7 +74,7 @@ export default function RegisterPage() {
       }
 
       setIsLoading(false);
-      setIsSuccess(true); // Mostrar el modal de éxito
+      setIsSuccess(true);
     } catch (error: any) {
       setIsLoading(false);
       setErrorMessage(error.message || "Error de red o del servidor.");

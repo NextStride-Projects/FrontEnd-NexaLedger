@@ -2,15 +2,14 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { IResource } from "@/app/utils/interfaces/resources/resources";
 
 const RegisterInventory = () => {
   const router = useRouter();
 
-  // Estados para los campos del formulario
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<IResource, "id" | "features" | "createdAt" | "updatedAt">>({
     name: "",
     description: "",
-    features: "",
     category: "",
     available: false,
     saleAvailability: false,
@@ -19,21 +18,28 @@ const RegisterInventory = () => {
     image: "",
   });
 
+  const [features, setFeatures] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const target = e.target as HTMLInputElement; // Garantizamos que sea un HTMLInputElement
-    const { name, value, type } = target;
-
-    const checked = target.type === "checkbox" ? target.checked : undefined; // Usamos `checked` solo si es un checkbox
+    const { name, value, type, checked } = e.target as HTMLInputElement;
 
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]:
+        type === "checkbox"
+          ? checked
+          : type === "number"
+          ? Number(value)
+          : value,
     }));
+  };
+
+  const handleFeaturesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFeatures(e.target.value.split(",").map((f) => f.trim()));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,14 +48,24 @@ const RegisterInventory = () => {
     setError(null);
 
     try {
-      const response = await fetch("/api/resources/register", {
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("token="))
+        ?.split("=")[1];
+
+      if (!token) {
+        throw new Error("Token de autenticación no encontrado.");
+      }
+
+      const response = await fetch("/api/resources", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           ...formData,
-          features: formData.features.split(",").map((f) => f.trim()), // Convertir la lista de features en un array
+          features,
         }),
       });
 
@@ -57,7 +73,7 @@ const RegisterInventory = () => {
         throw new Error("Error al registrar el inventario.");
       }
 
-      router.push("/dashboard/inventory"); // Redirigir al inventario
+      router.push("/resources");
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -95,12 +111,14 @@ const RegisterInventory = () => {
           />
         </div>
         <div>
-          <label className="block text-gray-700">Características (separadas por comas)</label>
+          <label className="block text-gray-700">
+            Características (separadas por comas)
+          </label>
           <input
             type="text"
             name="features"
-            value={formData.features}
-            onChange={handleChange}
+            value={features.join(", ")}
+            onChange={handleFeaturesChange}
             required
             className="w-full p-2 border rounded"
           />
@@ -139,7 +157,7 @@ const RegisterInventory = () => {
           </div>
         </div>
         <div>
-          <label className="block text-gray-700">Precio</label>
+          <label className="block text-gray-700">Precio Inicial</label>
           <input
             type="number"
             name="price"
@@ -150,7 +168,7 @@ const RegisterInventory = () => {
           />
         </div>
         <div>
-          <label className="block text-gray-700">Tamaño</label>
+          <label className="block text-gray-700">Cantidad</label>
           <input
             type="number"
             name="size"

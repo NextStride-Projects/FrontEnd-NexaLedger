@@ -3,9 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-// import TextInput from "@/app/components/Input/TextInput";
-// import Button from "@/app/components/Button/Button";
-// import { login } from "@/app/api/auth/route"
 
 export default function Login() {
   const [email, setEmail] = useState<string>("");
@@ -30,7 +27,7 @@ export default function Login() {
 
       setIsLoading(false);
       
-      router.push(`/dashboard`)
+      router.push(`/resources`)
     } catch (error: any) {
       setIsLoading(false);
       setErrorMessage(error.message || "Error de red o del servidor.");

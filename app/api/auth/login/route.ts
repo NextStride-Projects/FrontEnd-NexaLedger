@@ -15,8 +15,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       },
     });
 
-    console.log(response)
-
     if (!response.ok) {
       const errorData = await response.json();
       console.log("Error en la respuesta del servidor:", errorData);

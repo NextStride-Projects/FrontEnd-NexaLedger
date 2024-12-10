@@ -25,7 +25,7 @@ export default function SortableHeader({
   return (
     <Link
       href={{
-        pathname: "/dashboard/registros",
+        pathname: "/resources",
         query: {
           ...searchParams,
           sortBy: sortByField,

@@ -8,6 +8,11 @@ import Button from "../Button/Button";
 const TopBar = () => {
   const router = useRouter();
 
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout");
+    router.push("/login");
+  };
+
   return (
     <div
       className="bg-primaryColor text-white flex items-center"
@@ -24,10 +29,8 @@ const TopBar = () => {
 
         <Button
           className="font-bold py-1 px-3 flex border-none items-center gap-2"
-          onClick={() => router.push("/login")}
-          label={
-              <HiLogout className="text-xl" />
-          }
+          onClick={handleLogout}
+          label={<HiLogout className="text-xl" />}
           variant="primary"
         />
       </div>
