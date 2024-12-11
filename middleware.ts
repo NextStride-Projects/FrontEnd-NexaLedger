@@ -9,12 +9,12 @@ function decodeAndValidateToken(token: string): boolean {
       throw new Error("Invalid token structure");
     }
 
-    const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    const currentTime = Math.floor(Date.now() / 1000);
     if (decoded.exp < currentTime) {
-      return false; // Token has expired
+      return false;
     }
 
-    return true; // Token is valid
+    return true;
   } catch (error) {
     console.error("Error decoding token:", (error as Error).message);
     return false;
@@ -24,14 +24,21 @@ function decodeAndValidateToken(token: string): boolean {
 export function middleware(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
 
-  if (token && decodeAndValidateToken(token)) {
-    return;
+  if (req.nextUrl.pathname === "/") {
+    if (token && decodeAndValidateToken(token)) {
+      return NextResponse.redirect(new URL("/resources", req.url));
+    } else {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
   }
 
-  return NextResponse.redirect(new URL("/login", req.url));
+  if (!token || !decodeAndValidateToken(token)) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-    matcher: ["/business/:path*", "/resources/:path*"],
-  };
-  
+  matcher: ["/", "/empresas/:path*", "/resources/:path*"],
+};

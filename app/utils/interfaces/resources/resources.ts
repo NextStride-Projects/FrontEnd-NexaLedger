@@ -11,8 +11,8 @@ export interface IResource {
     price: number;
     size: number;
     image: string;
-    createdAt: Date;
-    updatedAt: Date;
+    acquiredAt: Date;
+    latesMovementDate: Date;
 }
 
 // interface ILatestMovement {

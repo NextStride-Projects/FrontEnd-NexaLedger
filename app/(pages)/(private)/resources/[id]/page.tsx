@@ -57,11 +57,11 @@ export default async function ResourceDetails({
         </p>
         <p className="text-gray-700">
           <strong>Adquirido en:</strong>{" "}
-          {new Date(resource.createdAt).toLocaleDateString()}
+          {new Date(resource.acquiredAt).toLocaleDateString()}
         </p>
         <p className="text-gray-700">
           <strong>Último movimiento:</strong>{" "}
-          {new Date(resource.updatedAt).toLocaleDateString()}
+          {new Date(resource.latesMovementDate).toLocaleDateString()}
         </p>
         <div className="mt-6">
           <a

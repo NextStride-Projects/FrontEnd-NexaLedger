@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Login() {
   const [email, setEmail] = useState<string>("");
@@ -26,8 +27,7 @@ export default function Login() {
       });
 
       setIsLoading(false);
-      
-      router.push(`/resources`)
+      router.push(`/resources`);
     } catch (error: any) {
       setIsLoading(false);
       setErrorMessage(error.message || "Error de red o del servidor.");
@@ -35,70 +35,71 @@ export default function Login() {
   };
 
   return (
-    <div
-      className="flex min-w-screen flex-col md:flex-row overflow-hidden"
-      style={{ minHeight: "calc(100vh - 38px)" }}
-    >
-      <section className="hidden md:flex w-1/2 items-center justify-center bg-gray-100">
+    <div className="flex min-h-[calc(100vh-40px)]">
+      <section className="hidden md:flex w-1/2 items-center justify-center bg-gray-200">
         <Image
           src="/imagenLogin.png"
           alt="Logo Empresa"
-          width={450}
-          height={450}
-          className="object-contain"
+          width={600}
+          height={600}
+          className="object-cover w-full h-[calc(100vh-35.5px)]"
         />
       </section>
 
-      <section className="flex flex-1 items-center justify-center bg-white">
-        <div className="flex flex-col w-4/5 max-w-md">
-          <h1 className="text-3xl font-bold text-center mb-6 text-gray-700">Bienvenido</h1>
-          <p className="text-center text-gray-500 mb-8">
+      <section className="flex flex-1 items-center justify-center bg-white px-6">
+        <div className="w-full max-w-md">
+          <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
+            Bienvenido
+          </h1>
+          <p className="text-center text-gray-600 mb-8">
             Por favor, inicia sesión para continuar
           </p>
-          <form className="flex flex-col space-y-4" 
-          onSubmit={handleSubmit}
-          >
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Correo Electrónico:</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="Ingrese su correo"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
+              />
+            </div>
 
-            <label>
-          Correo Electrónico:
-          <input
-            type="email"
-            name="email"
-            placeholder="Ingrese su correo"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{ width: "100%", padding: "8px" }}
-          />
-        </label>
-        <label>
-          Contraseña:
-          <input
-            type="password"
-            name="password"
-            placeholder="Ingrese su contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ width: "100%", padding: "8px" }}
-          />
-        </label>
-        <button
-          type="submit"
-          disabled={isLoading}
-          style={{
-            padding: "10px",
-            backgroundColor: isLoading ? "#ccc" : "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: isLoading ? "not-allowed" : "pointer",
-          }}
-        >
-          {isLoading ? "Cargando..." : "Iniciar Sesión"}
-        </button>
-        {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Contraseña:</label>
+              <input
+                type="password"
+                name="password"
+                placeholder="Ingrese su contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
+              />
+            </div>
 
-            <p className="text-center text-gray-500">¿No estás registrado? Contacta con el administrador</p>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`w-full p-3 text-white font-medium rounded transition-all ${
+                isLoading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-primaryColor hover:bg-primaryColorDark"
+              }`}
+            >
+              {isLoading ? "Cargando..." : "Iniciar Sesión"}
+            </button>
+
+            {errorMessage && <p className="text-red-500 text-center mt-4">{errorMessage}</p>}
           </form>
+
+          <p className="text-center text-gray-600 mt-6">
+            ¿No estás registrado? Puedes ingresar
+            <Link href="/register" className="text-primaryColorDark font-medium ml-1 italic">
+              aquí
+            </Link>
+          </p>
         </div>
       </section>
     </div>

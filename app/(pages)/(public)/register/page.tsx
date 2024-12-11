@@ -58,8 +58,6 @@ export default function RegisterPage() {
         active: true,
       };
 
-      console.log("Datos de la empresa enviados:", mergedCompanyData);
-
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
@@ -82,90 +80,101 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 space-y-12">
-      <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-8">
-        <h1 className="text-2xl font-semibold text-gray-700 mb-6 text-center">Registrar Usuario y Empresa</h1>
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* User Section */}
-          <div className="md:col-span-2">
-            <h2 className="text-lg font-medium text-gray-700">Datos del Usuario</h2>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Nombre</label>
-            <input
-              type="text"
-              name="name"
-              required
-              placeholder="Ingrese su nombre"
-              value={formData.user.name}
-              onChange={(e) => handleChange(e, "user")}
-              className="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Correo Electrónico</label>
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="Ingrese su correo electrónico"
-              value={formData.user.email}
-              onChange={(e) => handleChange(e, "user")}
-              className="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Contraseña</label>
-            <input
-              type="password"
-              name="password"
-              required
-              placeholder="Ingrese su contraseña"
-              value={formData.user.password}
-              onChange={(e) => handleChange(e, "user")}
-              className="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
+    <div className="flex min-h-[calc(100vh-40px)] bg-gray-100">
+      <section className="flex flex-1 items-center justify-center bg-white px-6">
+        <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-8">
+          <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
+            Registrar Usuario y Empresa
+          </h1>
+          <p className="text-center text-gray-600 mb-8">
+            Complete los campos para registrar el primer usuario y su empresa
+          </p>
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit}>
 
-          {/* Company Section */}
-          <div className="md:col-span-2">
-            <h2 className="text-lg font-medium text-gray-700">Datos de la Empresa</h2>
-          </div>
-          {Object.keys(formData.company).map((name) => (
-            <div key={name}>
-              <label className="block text-sm font-medium text-gray-700">
-                {capitalize(name)}
-              </label>
+            <div className="md:col-span-2">
+              <h2 className="text-lg font-medium text-gray-700 mb-2">Datos del Usuario</h2>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Nombre</label>
               <input
                 type="text"
-                name={name}
+                name="name"
                 required
-                placeholder={`Ingrese ${name}`}
-                value={formData.company[name as keyof typeof formData.company]}
-                onChange={(e) => handleChange(e, "company")}
-                className="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Ingrese su nombre"
+                value={formData.user.name}
+                onChange={(e) => handleChange(e, "user")}
+                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
               />
             </div>
-          ))}
-          <div className="md:col-span-2 flex justify-center">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400"
-            >
-              {isLoading ? "Cargando..." : "Registrar"}
-            </button>
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="Ingrese su correo electrónico"
+                value={formData.user.email}
+                onChange={(e) => handleChange(e, "user")}
+                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Contraseña</label>
+              <input
+                type="password"
+                name="password"
+                required
+                placeholder="Ingrese su contraseña"
+                value={formData.user.password}
+                onChange={(e) => handleChange(e, "user")}
+                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
+              />
+            </div>
 
-          {errorMessage && (
-            <p className="text-red-500 text-center md:col-span-2">{errorMessage}</p>
-          )}
-        </form>
-      </div>
+            <div className="md:col-span-2">
+              <h2 className="text-lg font-medium text-gray-700 mb-2">Datos de la Empresa</h2>
+            </div>
+            {Object.keys(formData.company).map((name) => (
+              <div key={name}>
+                <label className="block text-sm font-medium text-gray-700">
+                  {capitalize(name)}
+                </label>
+                <input
+                  type="text"
+                  name={name}
+                  required
+                  placeholder={`Ingrese ${name}`}
+                  value={formData.company[name as keyof typeof formData.company]}
+                  onChange={(e) => handleChange(e, "company")}
+                  className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
+                />
+              </div>
+            ))}
 
-      {/* Modal de éxito */}
+            <div className="md:col-span-2 flex justify-center">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className={`px-8 py-3 font-medium rounded transition-all text-white ${
+                  isLoading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-primaryColor hover:bg-primaryColorDark"
+                }`}
+              >
+                {isLoading ? "Cargando..." : "Registrar"}
+              </button>
+            </div>
+
+            {errorMessage && (
+              <p className="text-red-500 text-center md:col-span-2">{errorMessage}</p>
+            )}
+          </form>
+        </div>
+      </section>
+
+
       {isSuccess && (
-        <div className="fixed inset-0 m-t-[0px] flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-green-100 p-6 rounded-lg shadow-lg text-center">
             <h2 className="text-2xl font-semibold text-green-800">¡Registro exitoso!</h2>
             <p className="text-green-700 mt-2">El registro se ha completado correctamente.</p>
