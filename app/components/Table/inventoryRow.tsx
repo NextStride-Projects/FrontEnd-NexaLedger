@@ -22,8 +22,7 @@ export default function InventoryRow({ item, index }: InventoryRowProps) {
         {item.available ? "Sí" : "No"}
       </td>
       <td className="px-4 py-2 text-gray-900">{item.size}</td>
-      <td className="px-4 py-2 text-gray-900">{item.features.join(", ")}</td>
-      <td className="px-4 py-2 text-gray-900">${item.price}</td>
+      <td className="px-4 py-2 text-gray-900">{item.category}</td>
       <td className="px-4 py-2 text-right">
         <Link
           href={`/resources/${item.id}`}

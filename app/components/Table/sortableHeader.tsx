@@ -1,27 +1,30 @@
 "use client";
 
-interface SortableHeaderProps {
+interface SortableHeaderProps<T extends string> {
   title: string;
-  field: "name" | "size";
-  currentSortBy: string;
+  field: T;
+  currentSortBy: T;
   currentSortDirection: string;
-  onSort: (field: "name" | "size") => void;
+  onSort: (field: T) => void;
 }
 
-export default function SortableHeader({
+export default function SortableHeader<T extends string>({
   title,
   field,
   currentSortBy,
   currentSortDirection,
   onSort,
-}: SortableHeaderProps) {
+}: SortableHeaderProps<T>) {
+  const handleSortClick = () => {
+    onSort(field);
+  };
+
   return (
     <th
       className="cursor-pointer px-4 py-2 text-left font-medium"
-      onClick={() => onSort(field)}
+      onClick={handleSortClick}
     >
-      {title}{" "}
-      {currentSortBy === field && (currentSortDirection === "asc" ? "▲" : "▼")}
+      {title} {currentSortBy === field && (currentSortDirection === "asc" ? "▲" : "▼")}
     </th>
   );
 }

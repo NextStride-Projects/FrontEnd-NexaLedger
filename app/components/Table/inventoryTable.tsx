@@ -17,6 +17,11 @@ export default function InventoryTable({ inventory }: InventoryTableProps) {
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [sortBy, setSortBy] = useState<"name" | "size">("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
 
   const sortedAndPaginatedInventory = useMemo(() => {
     const sortedInventory = [...inventory].sort((a, b) => {
@@ -50,12 +55,30 @@ export default function InventoryTable({ inventory }: InventoryTableProps) {
     <div>
       <div className="flex justify-between mb-6">
         <h2 className="text-xl font-semibold text-black">Inventario</h2>
-        <Link
-          className="bg-primaryColor text-white rounded px-3 py-2 hover:bg-primaryColorDark"
-          href={`/resources/register`}
-        >
-          Añadir
-        </Link>
+        <div className="relative">
+          <button
+            className="bg-primaryColor text-white rounded px-3 py-2 hover:bg-primaryColorDark"
+            onClick={toggleDropdown}
+          >
+            Añadir
+          </button>
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-2 bg-white border border-gray-200 rounded shadow-lg">
+              <Link
+                href="/resources/register"
+                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                Añadir Objeto en Inventario
+              </Link>
+              <Link
+                href="/movements/register"
+                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                Añadir Movimiento
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
       <ItemsPerPageSelector
         itemsPerPage={itemsPerPage}
@@ -83,10 +106,7 @@ export default function InventoryTable({ inventory }: InventoryTableProps) {
                   currentSortDirection={sortDirection}
                   onSort={handleSort}
                 />
-                <th className="px-4 py-2 text-left font-medium">
-                  Características
-                </th>
-                <th className="px-4 py-2 text-left font-medium">Precio</th>
+                <th className="px-4 py-2 text-left font-medium">Categoría</th>
                 <th className="px-4 py-2 text-left font-medium">{" "}</th>
               </tr>
             </thead>

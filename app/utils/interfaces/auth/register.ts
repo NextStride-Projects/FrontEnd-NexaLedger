@@ -1,6 +1,7 @@
 import { UUIDTypes } from "uuid";
 
 export interface IRegisterCompany {
+    "empresaId": any;
     "id": UUIDTypes,
     "phone": string,
     "email": string,
@@ -10,7 +11,7 @@ export interface IRegisterCompany {
     "category": string,
     "location": string,
     "active": boolean,
-    "features": string,
+    "features": string[],
     "responsiblePerson": string,
     "responsibleEmail": string
   }

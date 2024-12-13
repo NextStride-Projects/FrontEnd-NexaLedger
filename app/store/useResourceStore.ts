@@ -1,35 +1,31 @@
-import { create } from "zustand";
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { IResource } from '@/app/utils/interfaces/resources/resources';
 
-interface Resource {
-  id: number;
-  name: string;
-  description: string;
-  features: string[];
-  category: string;
-  available: boolean;
-  saleAvailability: boolean;
-  price: number;
-  size: number;
-  image: string;
+interface ResourceState {
+  resources: IResource[];
+  currentPage: number;
+  errorMessage: string;
+  setResources: (resources: IResource[]) => void;
+  setCurrentPage: (page: number) => void;
+  setErrorMessage: (message: string) => void;
+  clearResources: () => void;
 }
 
-interface ResourceStore {
-  resources: Resource[];
-  isEditMode: boolean;
-  setResource: (updatedResource: Resource) => void;
-  setResources: (newResources: Resource[]) => void;
-  toggleEditMode: () => void;
-}
-
-export const useResourceStore = create<ResourceStore>((set) => ({
-  resources: [],
-  isEditMode: false,
-  setResource: (updatedResource) =>
-    set((state) => ({
-      resources: state.resources.map((resource) =>
-        resource.id === updatedResource.id ? updatedResource : resource
-      ),
-    })),
-  setResources: (newResources) => set(() => ({ resources: newResources })),
-  toggleEditMode: () => set((state) => ({ isEditMode: !state.isEditMode })),
-}));
+export const useResourcesStore = create<ResourceState>()(
+  persist(
+    (set) => ({
+      resources: [],
+      currentPage: 1,
+      errorMessage: '',
+      setResources: (resources) => set({ resources }),
+      setCurrentPage: (page) => set({ currentPage: page }),
+      setErrorMessage: (message) => set({ errorMessage: message }),
+      clearResources: () => set({ resources: [] }),
+    }),
+    {
+      name: 'resources-storage', // Nombre en el almacenamiento
+      storage: createJSONStorage(() => localStorage), // Definir el almacenamiento
+    }
+  )
+);

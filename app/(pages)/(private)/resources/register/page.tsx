@@ -1,207 +1,226 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IResource } from "@/app/utils/interfaces/resources/resources";
+import axios from "axios";
 
-const RegisterInventory = () => {
-  const router = useRouter();
-
-  const [formData, setFormData] = useState<Omit<IResource, "id" | "features" | "createdAt" | "updatedAt">>({
+export default function RegisterResource() {
+  const [formData, setFormData] = useState<Omit <IResource, "id" | "acquiredAt" | "latesMovementDate">>({
     name: "",
     description: "",
-    category: "",
     available: false,
     saleAvailability: false,
-    price: 0,
     size: 0,
+    features: [],
+    price: 0,
+    category: "",
     image: "",
   });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const router = useRouter();
 
-  const [features, setFeatures] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const getCookie = (name: string): string | null => {
+    const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
+    return match ? match[2] : null;
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, type, checked } = e.target as HTMLInputElement;
+    const target = e.target as HTMLInputElement | HTMLTextAreaElement;
+    const { name, value, type } = target;
 
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        type === "checkbox"
-          ? checked
-          : type === "number"
-          ? Number(value)
-          : value,
+      [name]: type === "checkbox" ? (target as HTMLInputElement).checked : value,
     }));
   };
 
-  const handleFeaturesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFeatures(e.target.value.split(",").map((f) => f.trim()));
+  const handleFeatureChange = (index: number, value: string) => {
+    setFormData((prev) => {
+      const updatedFeatures = [...prev.features];
+      updatedFeatures[index] = value;
+      return { ...prev, features: updatedFeatures };
+    });
+  };
+
+  const addFeature = () => {
+    setFormData((prev) => ({
+      ...prev,
+      features: [...prev.features, ""],
+    }));
+  };
+
+  const removeFeature = (index: number) => {
+    setFormData((prev) => {
+      const updatedFeatures = prev.features.filter((_, i) => i !== index);
+      return { ...prev, features: updatedFeatures };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+    setErrorMessage("");
+    setIsLoading(true);
 
     try {
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="))
-        ?.split("=")[1];
+      const token = getCookie("token");
 
       if (!token) {
         throw new Error("Token de autenticación no encontrado.");
       }
 
-      const response = await fetch("/api/resources", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          ...formData,
-          features,
-        }),
-      });
 
-      if (!response.ok) {
-        throw new Error("Error al registrar el inventario.");
-      }
+      await axios.post(
+        `/api/resources/create`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      router.push("/resources");
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Ocurrió un error inesperado.");
-      }
+      router.push(`/resources`);
+    } catch (error: any) {
+      setErrorMessage(error.response?.data?.message || "Error al registrar el recurso.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto mt-16 p-8 bg-white rounded shadow-md">
-      <h2 className="text-2xl font-bold text-center mb-6">Registrar Inventario</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="p-6">
+      <h2 className="text-xl font-bold text-gray-700 mb-6">Registrar Recurso</h2>
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-gray-700">Nombre</label>
+          <label className="block text-gray-700 font-medium mb-2">Nombre:</label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
             required
-            className="w-full p-2 border rounded"
           />
         </div>
         <div>
-          <label className="block text-gray-700">Descripción</label>
+          <label className="block text-gray-700 font-medium mb-2">Descripción:</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
+            rows={4}
             required
-            className="w-full p-2 border rounded"
-          />
+          ></textarea>
         </div>
         <div>
-          <label className="block text-gray-700">
-            Características (separadas por comas)
-          </label>
+          <label className="block text-gray-700 font-medium mb-2">Disponible:</label>
           <input
-            type="text"
-            name="features"
-            value={features.join(", ")}
-            onChange={handleFeaturesChange}
-            required
-            className="w-full p-2 border rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Categoría</label>
-          <input
-            type="text"
-            name="category"
-            value={formData.category}
+            type="checkbox"
+            name="available"
+            checked={formData.available}
             onChange={handleChange}
-            required
-            className="w-full p-2 border rounded"
+            className="h-4 w-4"
           />
         </div>
-        <div className="flex items-center gap-4">
-          <div>
-            <label className="block text-gray-700">Disponible</label>
-            <input
-              type="checkbox"
-              name="available"
-              checked={formData.available}
-              onChange={handleChange}
-              className="h-4 w-4"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700">Disponible para Venta</label>
-            <input
-              type="checkbox"
-              name="saleAvailability"
-              checked={formData.saleAvailability}
-              onChange={handleChange}
-              className="h-4 w-4"
-            />
-          </div>
-        </div>
         <div>
-          <label className="block text-gray-700">Precio Inicial</label>
+          <label className="block text-gray-700 font-medium mb-2">Disponible para venta:</label>
           <input
-            type="number"
-            name="price"
-            value={formData.price}
+            type="checkbox"
+            name="saleAvailability"
+            checked={formData.saleAvailability}
             onChange={handleChange}
-            required
-            className="w-full p-2 border rounded"
+            className="h-4 w-4"
           />
         </div>
         <div>
-          <label className="block text-gray-700">Cantidad</label>
+          <label className="block text-gray-700 font-medium mb-2">Tamaño:</label>
           <input
             type="number"
             name="size"
             value={formData.size}
             onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
             required
-            className="w-full p-2 border rounded"
           />
         </div>
         <div>
-          <label className="block text-gray-700">URL de Imagen</label>
+          <label className="block text-gray-700 font-medium mb-2">Características:</label>
+          {formData.features.map((feature, index) => (
+            <div key={index} className="flex items-center space-x-2 mb-2">
+              <input
+                type="text"
+                value={feature}
+                onChange={(e) => handleFeatureChange(index, e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
+              />
+              <button
+                type="button"
+                onClick={() => removeFeature(index)}
+                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Eliminar
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addFeature}
+            className="px-4 py-2 bg-primaryColor text-white rounded hover:bg-primaryColorDark"
+          >
+            Añadir característica
+          </button>
+        </div>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Precio:</label>
           <input
-            type="text"
-            name="image"
-            value={formData.image}
+            type="number"
+            name="price"
+            value={formData.price}
             onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
             required
-            className="w-full p-2 border rounded"
           />
         </div>
-        {error && <p className="text-red-500">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full p-2 text-white bg-green-600 rounded ${
-            loading ? "opacity-50 cursor-not-allowed" : "hover:bg-green-700"
-          }`}
-        >
-          {loading ? "Registrando..." : "Registrar"}
-        </button>
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">Categoría:</label>
+          <input
+            type="text"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
+            required
+          />
+        </div>
+        <div className="flex justify-between">
+          <button
+            type="button"
+            onClick={() => router.push(`/resources`)}
+            className="px-6 py-3 bg-gray-400 text-white rounded hover:bg-gray-500"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`px-6 py-3 text-white rounded transition-all ${
+              isLoading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-primaryColor hover:bg-primaryColorDark"
+            }`}
+          >
+            {isLoading ? "Guardando..." : "Registrar"}
+          </button>
+        </div>
+        {errorMessage && (
+          <p className="text-red-500 text-center mt-4">{errorMessage}</p>
+        )}
       </form>
     </div>
   );
-};
-
-export default RegisterInventory;
+}

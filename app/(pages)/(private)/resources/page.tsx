@@ -1,41 +1,31 @@
-import { cookies } from "next/headers";
+"use client";
+
+import { useEffect } from "react";
+import { useResourcesStore } from "@/app/store/useResourceStore";
 import InventoryTable from "@/app/components/Table/inventoryTable";
+import axios from "axios";
 
-export default async function InventoryPage() {
-  const cookieStore = cookies();
-  const token = (await cookieStore).get("token")?.value;
+export default function ClientInventory() {
+  const { resources, setResources } = useResourcesStore();
 
-  if (!token) {
-    return <div>You are not authenticated. Please log in.</div>;
-  }
+  useEffect(() => {
+    const fetchResources = async () => {
+      if (resources.length > 0) return;
 
-  try {
-    const response = await fetch(`http://localhost:7004/api/Resource`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    console.log(response)
+      try {
+        const response = await axios.get(`/api/resource/read`);
+        setResources(response.data);
+      } catch (error) {
+        console.error("Error al obtener los recursos:", error);
+      }
+    };
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch inventory data");
-    }
+    fetchResources();
+  }, [resources, setResources]);
 
-    const inventory = await response.json();
-
-    return (
-      <div className="p-4">
-        <InventoryTable inventory={inventory} />
-      </div>
-    );
-  } catch (error) {
-    console.error("Error fetching inventory:", error);
-    return (
-      <p className="text-red-500">
-        No se pudo cargar el inventario. Intente de nuevo más tarde.
-      </p>
-    );
-  }
+  return (
+    <div>
+      <InventoryTable inventory={resources} />
+    </div>
+  );
 }

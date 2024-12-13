@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serialize } from "cookie";
-import { IRegisterUser } from "@/app/utils/interfaces/auth/register";
+import { IRegisterUser, IRegisterCompany } from "@/app/utils/interfaces/auth/register";
+import { useAuthStore } from "@/app/store/useUserStore";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const urlCompany = `http://localhost:7001/api/Auth/register/empresa`;
@@ -9,7 +10,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const empresaData = await req.json();
 
-    console.log("Enviando solicitud para registrar empresa...");
     const companyResponse = await fetch(urlCompany, {
       method: "POST",
       headers: {
@@ -20,11 +20,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     if (!companyResponse.ok) {
       const errorData = await companyResponse.json();
-      console.error("Error en el registro de la empresa:", errorData);
       throw new Error(errorData.message || "Error al registrar la empresa");
     }
 
-    const companyData = await companyResponse.json();
+    const companyData: IRegisterCompany = await companyResponse.json();
     const companyId = companyData.empresaId;
 
     if (!companyId) {
@@ -46,12 +45,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     if (!userResponse.ok) {
       const errorData = await userResponse.json();
-      console.error("Error en el registro del usuario:", errorData);
       throw new Error(errorData.message || "Error al registrar el usuario");
     }
 
-    const userDataResponse = await userResponse.json();
-    const { token } = userDataResponse;
+    const userDataResponse: { token: string } & IRegisterUser = await userResponse.json();
+    const { token, ...registeredUser } = userDataResponse;
+
+    useAuthStore.getState().setUser(registeredUser);
+    useAuthStore.getState().setCompany(companyData);
 
     const res = NextResponse.json({ message: "Registro exitoso" });
 
@@ -67,7 +68,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     return res;
   } catch (error: any) {
-    console.error("Ocurrió un error durante la operación:", error.message);
     return NextResponse.json(
       { message: error.message || "Error interno del servidor" },
       { status: 500 }

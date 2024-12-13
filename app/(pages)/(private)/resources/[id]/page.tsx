@@ -1,85 +1,69 @@
-import { IResource } from "@/app/utils/interfaces/resources/resources";
-import { cookies } from "next/headers";
+"use client";
 
-export default async function ResourceDetails({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const cookieStore = cookies();
-  const token = (await cookieStore).get("token")?.value;
+import { useState, useEffect, SetStateAction } from "react";
+import { useParams } from "next/navigation";
+import axios from "axios";
+import ResourceDetails from "@/app/components/Steps/resourcesSteps/ResourcesDetails";
+import Movements from "@/app/components/Steps/resourcesSteps/LatestMovements";
 
-  if (!token) {
-    return <div>You are not authenticated. Please log in.</div>;
-  }
+export default function ResourceDetailsID() {
+  const { id } = useParams();
+  const [resource, setResource] = useState(null);
+  const [movements, setMovements] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("detalles");
 
-  try {
-    const response = await fetch(`http://localhost:7004/api/Resource/${id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  useEffect(() => {
+    const fetchResource = async () => {
+      try {
+        const response = await axios.get(`/api/resources/read?id=${id}`);
+        setResource(response.data);
+      } catch (error) {
+        setErrorMessage("Error fetching resource data.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch resource details");
+    const fetchMovements = async () => {
+      try {
+        const response = await axios.get(`/api/movement/${id}`);
+        setMovements(response.data);
+      } catch (error) {
+        setErrorMessage("Error fetching movements data.");
+      }
+    };
+
+    if (id) {
+      fetchResource();
+      fetchMovements();
+    } else {
+      setErrorMessage("Invalid resource ID.");
+      setIsLoading(false);
     }
+  }, [id]);
 
-    const resource: IResource = await response.json();
+  const handleTabClick = (tab: SetStateAction<string>) => setActiveTab(tab);
 
-    return (
-      <div className="p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          Detalles del Recurso
-        </h2>
-        <p className="text-gray-700">
-          <strong>Nombre:</strong> {resource.name}
-        </p>
-        <p className="text-gray-700">
-          <strong>Descripción:</strong> {resource.description}
-        </p>
-        <p className="text-gray-700">
-          <strong>Disponible:</strong> {resource.available ? "Sí" : "No"}
-        </p>
-        <p className="text-gray-700">
-          <strong>Tamaño:</strong> {resource.size}
-        </p>
-        <p className="text-gray-700">
-          <strong>Características:</strong>{" "}
-          {resource.features.length > 0
-            ? resource.features.join(", ")
-            : "Ninguna"}
-        </p>
-        <p className="text-gray-700">
-          <strong>Precio:</strong> ${resource.price}
-        </p>
-        <p className="text-gray-700">
-          <strong>Adquirido en:</strong>{" "}
-          {new Date(resource.acquiredAt).toLocaleDateString()}
-        </p>
-        <p className="text-gray-700">
-          <strong>Último movimiento:</strong>{" "}
-          {new Date(resource.latesMovementDate).toLocaleDateString()}
-        </p>
-        <div className="mt-6">
-          <a
-            href="/resources"
-            className="text-primaryColor hover:text-primaryColorDark"
-          >
-            Volver al inventario
-          </a>
+  if (isLoading) return <p className="text-gray-500">Loading...</p>;
+  if (errorMessage) return <p className="text-red-500">{errorMessage}</p>;
+
+  return (
+    <div className="p-6">
+      <div className="flex justify-between mb-6">
+        <h1 className="text-lg font-bold">Resource Details</h1>
+        <div className="flex gap-4">
+          <a href="/resources" className="bg-gray-500 text-white px-4 py-2 rounded">Back</a>
+          <a href={`/resources/${id}/edit`} className="bg-primaryColor text-white px-4 py-2 rounded">Edit</a>
         </div>
       </div>
-    );
-  } catch (error) {
-    console.error("Failed to fetch resource details:", error);
-    return (
-      <p className="text-red-500">
-        No se pudieron cargar los detalles del recurso. Intente de nuevo más
-        tarde.
-      </p>
-    );
-  }
+      <div className="flex items-center gap-4 mb-6">
+        <button onClick={() => handleTabClick("detalles")} className={`px-6 py-2 ${activeTab === "detalles" ? "text-blue-500 border-b-2 border-blue-500" : "text-gray-500"}`}>Details</button>
+        <button onClick={() => handleTabClick("movimientos")} className={`px-6 py-2 ${activeTab === "movimientos" ? "text-blue-500 border-b-2 border-blue-500" : "text-gray-500"}`}>Movements</button>
+      </div>
+      {activeTab === "detalles" && <ResourceDetails resource={resource} />}
+      {activeTab === "movimientos" && <Movements movements={movements} />}
+    </div>
+  );
 }

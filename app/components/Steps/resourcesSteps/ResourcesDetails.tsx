@@ -1,88 +1,26 @@
-import { useEffect, useState } from 'react';
-import TextInput from '@/app/components/Input/TextInput';
-
-interface Resource {
-  id: number;
-  name: string;
-  description: string;
-  features: string[];
-  category: string;
-  price: number;
-}
+import { IResource } from "@/app/utils/interfaces/resources/resources";
 
 interface ResourceDetailsProps {
-  resource: Resource;
-  isEditMode: boolean;
-  handleSave: (updatedResource: Resource) => void;
+  resource: IResource | null;
 }
 
-const ResourceDetails = ({ resource, isEditMode, handleSave }: ResourceDetailsProps) => {
-  const [editableResource, setEditableResource] = useState<Resource>(resource);
-
-  useEffect(() => {
-    console.log('[ResourceDetails] useEffect - resource updated:', resource);
-    setEditableResource(resource);
-  }, [resource]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    console.log(`[ResourceDetails] handleChange - field: ${name}, value: ${value}`);
-    setEditableResource((prevResource) => ({
-      ...prevResource,
-      [name]: value,
-    }));
-  };
+export default function ResourceDetails({ resource }: ResourceDetailsProps) {
+  if (!resource) {
+    return <p className="text-gray-500">No resource data available.</p>;
+  }
 
   return (
-    <div className="max-w-[1600px] min-h-[400px] p-6">
-      <div className="flex flex-col sm:flex-row gap-8">
-        <div className="flex flex-col gap-4 w-full sm:w-1/2">
-          <TextInput
-            label="ID"
-            name="id"
-            value={editableResource.id.toString()}
-            editable={false}
-            onChange={handleChange}
-          />
-          <TextInput
-            label="Nombre del artículo"
-            name="name"
-            value={editableResource.name}
-            editable={isEditMode}
-            onChange={handleChange}
-          />
-          <TextInput
-            label="Descripción detallada"
-            name="description"
-            value={editableResource.description}
-            editable={isEditMode}
-            isTextArea={true}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="flex flex-col gap-4 w-full sm:w-1/2">
-          <TextInput
-            label="Precio"
-            name="price"
-            type="number"
-            value={editableResource.price.toString()}
-            editable={isEditMode}
-            onChange={handleChange}
-          />
-        </div>
-      </div>
-      {isEditMode && (
-        <div className="mt-4">
-          <button
-            className="px-4 py-2 bg-blue-500 text-white rounded"
-            onClick={() => handleSave(editableResource)}
-          >
-            Guardar
-          </button>
-        </div>
-      )}
+    <div>
+      <img src={resource.image} alt={resource.name} className="w-32 h-32 object-cover rounded-lg border" />
+      <h2 className="text-xl font-semibold">{resource.name}</h2>
+      <p>{resource.description}</p>
+      <p>Category: {resource.category}</p>
+      <p>Available: {resource.available ? "Yes" : "No"}</p>
+      <p>Sale Availability: {resource.saleAvailability ? "Yes" : "No"}</p>
+      <p>Price: ${resource.price}</p>
+      <p>Size: {resource.size} MB</p>
+      <p>Acquired At: {resource.acquiredAt ? new Date(resource.acquiredAt).toLocaleDateString() : "N/A"}</p>
+      <p>Last Movement Date: {resource.latesMovementDate ? new Date(resource.latesMovementDate).toLocaleDateString() : "N/A"}</p>
     </div>
   );
-};
-
-export default ResourceDetails;
+}

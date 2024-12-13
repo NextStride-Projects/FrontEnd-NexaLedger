@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import { IRegisterUser, IRegisterCompany } from "@/app/utils/interfaces/auth/register";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState<{
     user: Omit<IRegisterUser, "id" | "empresaId">;
-    company: Omit<IRegisterCompany, "id" | "active" | "responsibleEmail" | "responsiblePerson">;
+    company: Omit<IRegisterCompany, "id" | "active" | "empresaId" | "responsibleEmail" | "responsiblePerson" | "features">;
   }>({
     user: {
       name: "",
@@ -21,14 +23,14 @@ export default function RegisterPage() {
       description: "",
       alias: "",
       category: "",
-      location: "",
-      features: "",
+      location: ""
     },
   });
 
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
+  const [currentStep, setCurrentStep] = useState<number>(1);
   const router = useRouter();
 
   const handleChange = (
@@ -45,133 +47,134 @@ export default function RegisterPage() {
     }));
   };
 
+  const handleNextStep = () => {
+    setCurrentStep((prev) => prev + 1);
+  };
+
+  const handlePreviousStep = () => {
+    setCurrentStep((prev) => prev - 1);
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage("");
     setIsLoading(true);
 
     try {
-      const mergedCompanyData: Omit<IRegisterCompany, "id"> = {
+      const mergedCompanyData: Omit<IRegisterCompany, "id" | "features" | "empresaId"> = {
         ...formData.company,
         responsiblePerson: formData.user.name,
         responsibleEmail: formData.user.email,
-        active: true,
+        active: true
       };
 
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ company: mergedCompanyData, userData: formData.user }),
+      const response = await axios.post("/api/auth/register", {
+        company: mergedCompanyData,
+        userData: formData.user,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error al registrar");
-      }
 
       setIsLoading(false);
       setIsSuccess(true);
     } catch (error: any) {
       setIsLoading(false);
-      setErrorMessage(error.message || "Error de red o del servidor.");
+      setErrorMessage(error.response?.data?.message || "Error de red o del servidor.");
     }
   };
 
   return (
     <div className="flex min-h-[calc(100vh-40px)] bg-gray-100">
-      <section className="flex flex-1 items-center justify-center bg-white px-6">
+      <section className="hidden md:flex w-1/2 items-center justify-center bg-gray-100">
+        <Image
+          src="/imagenLogin.png"
+          alt="Imagen de Registro"
+          width={450}
+          height={450}
+          className="object-cover w-full h-[calc(100vh-40px)]"
+        />
+      </section>
+      <section className="flex flex-1 items-center justify-center bg-white px-6 text-sm">
         <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-8">
-          <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
-            Registrar Usuario y Empresa
-          </h1>
-          <p className="text-center text-gray-600 mb-8">
-            Complete los campos para registrar el primer usuario y su empresa
-          </p>
-          <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit}>
+          <div className="flex items-center mb-6">
+            <div className="flex items-center space-x-2">
+              <span
+                className={`w-[50px] h-[35px] rounded-full flex items-center justify-center font-bold text-white ${
+                  currentStep === 1 ? "bg-primaryColor" : "bg-gray-400"
+                }`}
+              >
+                1
+              </span>
+              <p className="text-gray-700 font-medium">Registrar Empresa</p>
+            </div>
+            <div className="w-full border-t border-gray-300 mx-4"></div>
+            <div className="flex items-center space-x-2">
+              <span
+                className={`w-[50px] h-[35px] rounded-full flex items-center justify-center font-bold text-white ${
+                  currentStep === 2 ? "bg-primaryColor" : "bg-gray-400"
+                }`}
+              >
+                2
+              </span>
+              <p className="text-gray-700 font-medium">Registrar Usuario</p>
+            </div>
+          </div>
 
-            <div className="md:col-span-2">
-              <h2 className="text-lg font-medium text-gray-700 mb-2">Datos del Usuario</h2>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Nombre</label>
-              <input
-                type="text"
-                name="name"
-                required
-                placeholder="Ingrese su nombre"
-                value={formData.user.name}
-                onChange={(e) => handleChange(e, "user")}
-                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Correo Electrónico</label>
-              <input
-                type="email"
-                name="email"
-                required
-                placeholder="Ingrese su correo electrónico"
-                value={formData.user.email}
-                onChange={(e) => handleChange(e, "user")}
-                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Contraseña</label>
-              <input
-                type="password"
-                name="password"
-                required
-                placeholder="Ingrese su contraseña"
-                value={formData.user.password}
-                onChange={(e) => handleChange(e, "user")}
-                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
-              />
-            </div>
+          {currentStep === 1 && (
+            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleNextStep}
+                  className="px-6 py-3 bg-primaryColor text-white rounded hover:bg-primaryColorDark"
+                >
+                  Siguiente
+                </button>
+              </div>
+            </form>
+          )}
 
-            <div className="md:col-span-2">
-              <h2 className="text-lg font-medium text-gray-700 mb-2">Datos de la Empresa</h2>
-            </div>
-            {Object.keys(formData.company).map((name) => (
-              <div key={name}>
-                <label className="block text-sm font-medium text-gray-700">
-                  {capitalize(name)}
-                </label>
+          {currentStep === 2 && (
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <div>
+                <label className="block text-gray-700 font-medium mb-2">Nombre:</label>
                 <input
                   type="text"
-                  name={name}
+                  name="name"
                   required
-                  placeholder={`Ingrese ${name}`}
-                  value={formData.company[name as keyof typeof formData.company]}
-                  onChange={(e) => handleChange(e, "company")}
+                  placeholder="Ingrese su nombre"
+                  value={formData.user.name}
+                  onChange={(e) => handleChange(e, "user")}
                   className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
                 />
               </div>
-            ))}
-
-            <div className="md:col-span-2 flex justify-center">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`px-8 py-3 font-medium rounded transition-all text-white ${
-                  isLoading
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-primaryColor hover:bg-primaryColorDark"
-                }`}
-              >
-                {isLoading ? "Cargando..." : "Registrar"}
-              </button>
-            </div>
-
-            {errorMessage && (
-              <p className="text-red-500 text-center md:col-span-2">{errorMessage}</p>
-            )}
-          </form>
+              <div className="flex justify-between">
+                <button
+                  type="button"
+                  onClick={handlePreviousStep}
+                  className="px-6 py-3 bg-gray-400 text-white rounded hover:bg-gray-500"
+                >
+                  Anterior
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`px-6 py-3 text-white rounded transition-all ${
+                    isLoading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-primaryColor hover:bg-primaryColorDark"
+                  }`}
+                >
+                  {isLoading ? "Cargando..." : "Registrar"}
+                </button>
+              </div>
+              {errorMessage && (
+                <p className="text-red-500 text-center mt-4">{errorMessage}</p>
+              )}
+            </form>
+          )}
         </div>
       </section>
-
 
       {isSuccess && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -189,8 +192,4 @@ export default function RegisterPage() {
       )}
     </div>
   );
-}
-
-function capitalize(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1).replace(/([A-Z])/g, " $1");
 }

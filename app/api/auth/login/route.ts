@@ -1,28 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serialize } from "cookie";
+import axios from "axios";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const url = `http://localhost:7001/api/Auth/login`;
 
-  const { email, password } = await req.json();
-
   try {
-    console.log("Enviando solicitud al backend...");
-    const response = await fetch(`${url}?email=${email}&password=${password}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const { email, password } = await req.json();
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.log("Error en la respuesta del servidor:", errorData);
-      throw new Error(errorData.message || "Error al iniciar sesión");
-    }
+    const response = await axios.post(
+      url,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        params: { email, password },
+      }
+    );
 
-    const data = await response.json();
-    const { token } = data;
+    const { token } = response.data;
 
     const res = NextResponse.json({ message: "Login successful" });
 
@@ -36,11 +33,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
 
     return res;
-  } catch (error) {
-    console.error("Ocurrió un error durante la petición:", error);
+  } catch (error: any) {
+    const errorMessage =
+      error.response?.data?.message || "Error interno del servidor";
+
+    console.error("Ocurrió un error durante la petición:", errorMessage);
+
     return NextResponse.json(
-      { message: error || "Error interno del servidor" },
-      { status: 500 }
+      { message: errorMessage },
+      { status: error.response?.status || 500 }
     );
   }
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import Link from "next/link";
 
 export default function Login() {
@@ -18,19 +19,12 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
+      await axios.post("/api/auth/login", { email, password });
       setIsLoading(false);
       router.push(`/resources`);
     } catch (error: any) {
       setIsLoading(false);
-      setErrorMessage(error.message || "Error de red o del servidor.");
+      setErrorMessage(error.response?.data?.message || "Error de red o del servidor.");
     }
   };
 
@@ -48,9 +42,7 @@ export default function Login() {
 
       <section className="flex flex-1 items-center justify-center bg-white px-6">
         <div className="w-full max-w-md">
-          <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
-            Bienvenido
-          </h1>
+          <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Bienvenido</h1>
           <p className="text-center text-gray-600 mb-8">
             Por favor, inicia sesión para continuar
           </p>

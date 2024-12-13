@@ -14,11 +14,3 @@ export interface IResource {
     acquiredAt: Date;
     latesMovementDate: Date;
 }
-
-// interface ILatestMovement {
-//     id: number;
-//     date: Date;
-//     responsible: string;
-//     reason: string;
-//     status: string;
-// }
