@@ -1,9 +1,12 @@
-import { UUIDTypes } from "uuid";
+export interface IMovement {
+  id: string;
+  resourceId: string;
+  userId: string;
+  type: string;
+  description: string;
+  timestamp: Date;
+}
 
-export interface ILatestMovement {
-    resourceId: UUIDTypes;
-    userId: UUIDTypes;
-    type: string;
-    description: string;
-    timestamp: string;
+export interface IMovementWithUsername extends IMovement {
+  username: string;
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { IResource } from "@/app/utils/interfaces/resources/resources";
+import { any } from "zod";
 
 export async function POST(req: Request): Promise<NextResponse> {
   const url = `http://localhost:7004/api/Resource`;
@@ -23,8 +24,6 @@ export async function POST(req: Request): Promise<NextResponse> {
       !Array.isArray(body.features) ||
       typeof body.available !== "boolean" ||
       typeof body.saleAvailability !== "boolean" ||
-      typeof body.price !== "number" ||
-      typeof body.size !== "number" ||
       typeof body.category !== "string"
     ) {
       return NextResponse.json(

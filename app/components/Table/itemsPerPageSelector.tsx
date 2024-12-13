@@ -22,9 +22,9 @@ export default function ItemsPerPageSelector({
         }}
         className="ml-2 p-2 border rounded"
       >
-        <option value={1}>1</option>
-        <option value={3}>3</option>
-        <option value={4}>4</option>
+        <option value={5}>5</option>
+        <option value={10}>10</option>
+        <option value={15}>15</option>
       </select>
     </label>
   );

@@ -85,7 +85,7 @@ export default function InventoryTable({ inventory }: InventoryTableProps) {
         setItemsPerPage={setItemsPerPage}
         setCurrentPage={setCurrentPage}
       />
-      <div className="rounded-lg text-sm overflow-auto h-[400px] flex items-start justify-center">
+      <div className="rounded-lg text-sm mt-2 overflow-auto flex items-start justify-center">
         {sortedAndPaginatedInventory.length > 0 ? (
           <table className="w-full bg-white">
             <thead className="bg-primaryColor text-white">

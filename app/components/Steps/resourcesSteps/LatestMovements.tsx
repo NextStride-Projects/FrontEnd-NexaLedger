@@ -3,38 +3,17 @@
 import Pagination from "@/app/components/Table/pagination";
 import ItemsPerPageSelector from "@/app/components/Table/itemsPerPageSelector";
 import { useState, useMemo, useEffect } from "react";
-import { ILatestMovement } from "@/app/utils/interfaces/movement/movement";
 import axios from "axios";
+import { getCookie } from "@/app/utils/functions/cookies";
+import { IMovementWithUsername } from "@/app/utils/interfaces/movement/movement";
 
 interface MovementsProps {
-  movements: ILatestMovement[];
-}
-
-interface User {
-  id: string;
-  name: string;
+  movements: IMovementWithUsername[];
 }
 
 export default function Movements({ movements }: MovementsProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [users, setUsers] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get("/api/users");
-        const userMap: Record<string, string> = {};
-        response.data.forEach((user: User) => {
-          userMap[user.id] = user.name;
-        });
-        setUsers(userMap);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-    fetchUsers();
-  }, []);
 
   const paginatedMovements = useMemo(() => {
     if (!Array.isArray(movements) || movements.length === 0) {
@@ -74,7 +53,7 @@ export default function Movements({ movements }: MovementsProps) {
                     {new Date(movement.timestamp).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-2 text-gray-900">
-                    {users[movement.userId.toString()] || "Usuario desconocido"}
+                    {movement.username || "Usuario desconocido"}
                   </td>
                   <td className="px-4 py-2 text-gray-900">{movement.type}</td>
                   <td className="px-4 py-2 text-gray-900">

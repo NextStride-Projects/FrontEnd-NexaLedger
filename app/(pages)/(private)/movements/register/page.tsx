@@ -3,14 +3,16 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { ILatestMovement } from "@/app/utils/interfaces/movement/movement";
 import { IResource } from "@/app/utils/interfaces/resources/resources";
+import { IMovement } from "@/app/utils/interfaces/movement/movement";
 
 export default function CreateMovement() {
-  const [resources, setResources] = useState<
-    Pick<IResource, "id" | "name">[]
-  >([]);
-  const [formData, setFormData] = useState<Omit <ILatestMovement, "timestamp" | "userId">>({
+  const [resources, setResources] = useState<Pick<IResource, "id" | "name">[]>(
+    []
+  );
+  const [formData, setFormData] = useState<
+    Omit<IMovement, "timestamp" | "userId" | "id">
+  >({
     resourceId: "",
     type: "",
     description: "",
@@ -37,7 +39,9 @@ export default function CreateMovement() {
   }, []);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -76,7 +80,9 @@ export default function CreateMovement() {
       <h2 className="text-xl font-bold text-gray-700 mb-6">Crear Movimiento</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-gray-700 font-medium mb-2">Recurso:</label>
+          <label className="block text-gray-700 font-medium mb-2">
+            Recurso:
+          </label>
           <select
             name="resourceId"
             value={formData.resourceId.toString()}
@@ -88,14 +94,19 @@ export default function CreateMovement() {
               Seleccione un recurso
             </option>
             {resources.map((resource) => (
-              <option key={resource.id.toString()} value={resource.id.toString()}>
+              <option
+                key={resource.id.toString()}
+                value={resource.id.toString()}
+              >
                 {resource.name}
               </option>
             ))}
           </select>
         </div>
         <div>
-          <label className="block text-gray-700 font-medium mb-2">Tipo de Movimiento:</label>
+          <label className="block text-gray-700 font-medium mb-2">
+            Tipo de Movimiento:
+          </label>
           <input
             type="text"
             name="type"
@@ -106,7 +117,9 @@ export default function CreateMovement() {
           />
         </div>
         <div>
-          <label className="block text-gray-700 font-medium mb-2">Descripción:</label>
+          <label className="block text-gray-700 font-medium mb-2">
+            Descripción:
+          </label>
           <textarea
             name="description"
             value={formData.description}

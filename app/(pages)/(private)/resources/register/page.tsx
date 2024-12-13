@@ -6,7 +6,9 @@ import { IResource } from "@/app/utils/interfaces/resources/resources";
 import axios from "axios";
 
 export default function RegisterResource() {
-  const [formData, setFormData] = useState<Omit <IResource, "id" | "acquiredAt" | "latesMovementDate">>({
+  const [formData, setFormData] = useState<
+    Omit<IResource, "id" | "acquiredAt" | "latesMovementDate">
+  >({
     name: "",
     description: "",
     available: false,
@@ -19,6 +21,7 @@ export default function RegisterResource() {
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+
   const router = useRouter();
 
   const getCookie = (name: string): string | null => {
@@ -29,12 +32,12 @@ export default function RegisterResource() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const target = e.target as HTMLInputElement | HTMLTextAreaElement;
-    const { name, value, type } = target;
-
+    const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? (target as HTMLInputElement).checked : value,
+      [name]: type === "checkbox"
+        ? (e.target as HTMLInputElement).checked
+        : value,
     }));
   };
 
@@ -72,20 +75,17 @@ export default function RegisterResource() {
         throw new Error("Token de autenticación no encontrado.");
       }
 
-
-      await axios.post(
-        `/api/resources/create`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.post(`/api/resources/create`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       router.push(`/resources`);
     } catch (error: any) {
-      setErrorMessage(error.response?.data?.message || "Error al registrar el recurso.");
+      setErrorMessage(
+        error.response?.data?.message || "Error al registrar el recurso."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -93,75 +93,115 @@ export default function RegisterResource() {
 
   return (
     <div className="p-6">
-      <h2 className="text-xl font-bold text-gray-700 mb-6">Registrar Recurso</h2>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <h2 className="text-md font-bold text-gray-700 mb-6">Registrar Recurso</h2>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-gray-700 font-medium mb-2">Nombre:</label>
+          <label className="block text-gray-700 text-sm font-medium mb-1">
+            Nombre:
+          </label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor text-sm"
             required
           />
         </div>
         <div>
-          <label className="block text-gray-700 font-medium mb-2">Descripción:</label>
-          <textarea
-            name="description"
-            value={formData.description}
+          <label className="block text-gray-700 text-sm font-medium mb-1">
+            Categoría:
+          </label>
+          <input
+            type="text"
+            name="category"
+            value={formData.category}
             onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
-            rows={4}
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor text-sm"
             required
-          ></textarea>
-        </div>
-        <div>
-          <label className="block text-gray-700 font-medium mb-2">Disponible:</label>
-          <input
-            type="checkbox"
-            name="available"
-            checked={formData.available}
-            onChange={handleChange}
-            className="h-4 w-4"
           />
         </div>
         <div>
-          <label className="block text-gray-700 font-medium mb-2">Disponible para venta:</label>
-          <input
-            type="checkbox"
-            name="saleAvailability"
-            checked={formData.saleAvailability}
-            onChange={handleChange}
-            className="h-4 w-4"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700 font-medium mb-2">Tamaño:</label>
+          <label className="block text-gray-700 text-sm font-medium mb-1">
+            Cantidad:
+          </label>
           <input
             type="number"
             name="size"
             value={formData.size}
             onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor text-sm"
             required
           />
         </div>
         <div>
-          <label className="block text-gray-700 font-medium mb-2">Características:</label>
+          <label className="block text-gray-700 text-sm font-medium mb-1">
+            Precio de compra:
+          </label>
+          <input
+            type="number"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor text-sm"
+            required
+          />
+        </div>
+        <div className="col-span-2 flex space-x-4 items-center">
+          <div className="flex items-center space-x-2">
+            <label className="text-gray-700 text-sm font-medium">
+              Disponible:
+            </label>
+            <input
+              type="checkbox"
+              name="available"
+              checked={formData.available}
+              onChange={handleChange}
+              className="h-4 w-4"
+            />
+          </div>
+          <div className="flex items-center space-x-2">
+            <label className="text-gray-700 text-sm font-medium">
+              Disponible para venta:
+            </label>
+            <input
+              type="checkbox"
+              name="saleAvailability"
+              checked={formData.saleAvailability}
+              onChange={handleChange}
+              className="h-4 w-4"
+            />
+          </div>
+        </div>
+        <div className="col-span-2">
+          <label className="block text-gray-700 text-sm font-medium mb-1">
+            Descripción:
+          </label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor text-sm"
+            rows={3}
+            required
+          ></textarea>
+        </div>
+        <div className="col-span-2">
+          <label className="block text-gray-700 text-sm font-medium mb-1">
+            Características:
+          </label>
           {formData.features.map((feature, index) => (
             <div key={index} className="flex items-center space-x-2 mb-2">
               <input
                 type="text"
                 value={feature}
                 onChange={(e) => handleFeatureChange(index, e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor text-sm"
               />
               <button
                 type="button"
                 onClick={() => removeFeature(index)}
-                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs"
               >
                 Eliminar
               </button>
@@ -170,55 +210,33 @@ export default function RegisterResource() {
           <button
             type="button"
             onClick={addFeature}
-            className="px-4 py-2 bg-primaryColor text-white rounded hover:bg-primaryColorDark"
+            className="px-4 py-2 bg-primaryColor text-white rounded hover:bg-primaryColorDark text-xs"
           >
             Añadir característica
           </button>
         </div>
-        <div>
-          <label className="block text-gray-700 font-medium mb-2">Precio:</label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700 font-medium mb-2">Categoría:</label>
-          <input
-            type="text"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-primaryColor"
-            required
-          />
-        </div>
-        <div className="flex justify-between">
+        <div className="col-span-2 flex justify-between">
           <button
             type="button"
             onClick={() => router.push(`/resources`)}
-            className="px-6 py-3 bg-gray-400 text-white rounded hover:bg-gray-500"
+            className="px-6 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 text-xs"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={isLoading}
-            className={`px-6 py-3 text-white rounded transition-all ${
+            className={`px-6 py-2 rounded text-xs transition-all ${
               isLoading
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-primaryColor hover:bg-primaryColorDark"
+                : "bg-primaryColor text-white hover:bg-primaryColorDark"
             }`}
           >
             {isLoading ? "Guardando..." : "Registrar"}
           </button>
         </div>
         {errorMessage && (
-          <p className="text-red-500 text-center mt-4">{errorMessage}</p>
+          <p className="text-red-500 text-center mt-4 text-sm">{errorMessage}</p>
         )}
       </form>
     </div>

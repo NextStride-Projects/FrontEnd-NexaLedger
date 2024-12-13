@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { ILatestMovement } from "@/app/utils/interfaces/movement/movement";
 import axios from "axios";
 
-export async function GET(req: Request, { params }: { params: { id: string } }): Promise<NextResponse> {
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
@@ -15,7 +17,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }):
       );
     }
 
-    const resourceId = params.id;
+    const { id: resourceId } = await params;
 
     if (!resourceId) {
       return NextResponse.json(

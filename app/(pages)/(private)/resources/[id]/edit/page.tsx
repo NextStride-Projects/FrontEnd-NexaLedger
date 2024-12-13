@@ -47,7 +47,17 @@ export default function EditResource() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type, checked } = e.target as HTMLInputElement;
     setFormData((prev) =>
-      prev ? { ...prev, [name]: type === "checkbox" ? checked : value } : null
+      prev
+        ? {
+            ...prev,
+            [name]:
+              type === "checkbox"
+                ? checked
+                : type === "number"
+                ? parseFloat(value) || 0 // Parse numeric inputs, fallback to 0
+                : value,
+          }
+        : null
     );
   };
 
@@ -89,6 +99,8 @@ export default function EditResource() {
       if (!token) {
         throw new Error("Token de autenticación no encontrado.");
       }
+
+      console.log(formData)
 
       const response = await axios.put(
         `/api/resources/${id}`,

@@ -1,7 +1,5 @@
-import { UUIDTypes } from "uuid";
-
 export interface IResource {
-    id: UUIDTypes;
+    id: string;
     name: string;
     description: string;
     features: string[];
