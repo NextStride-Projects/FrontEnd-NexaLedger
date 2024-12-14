@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { ILatestMovement } from "@/app/utils/interfaces/movement/movement";
+import { IMovement } from "@/app/utils/interfaces/movement/movement";
 import axios from "axios";
 
 export async function POST(req: Request): Promise<NextResponse> {
@@ -15,7 +15,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       );
     }
 
-    const body: ILatestMovement = await req.json();
+    const body: IMovement = await req.json();
 
     if (!body.resourceId || !body.type || !body.description) {
       return NextResponse.json(

@@ -2,9 +2,7 @@
 
 import Pagination from "@/app/components/Table/pagination";
 import ItemsPerPageSelector from "@/app/components/Table/itemsPerPageSelector";
-import { useState, useMemo, useEffect } from "react";
-import axios from "axios";
-import { getCookie } from "@/app/utils/functions/cookies";
+import { useState, useMemo } from "react";
 import { IMovementWithUsername } from "@/app/utils/interfaces/movement/movement";
 
 interface MovementsProps {
@@ -25,11 +23,12 @@ export default function Movements({ movements }: MovementsProps) {
 
   return (
     <div>
+      <div className="my-4">
       <ItemsPerPageSelector
         itemsPerPage={itemsPerPage}
         setItemsPerPage={setItemsPerPage}
         setCurrentPage={setCurrentPage}
-      />
+      /></div>
       <div className="rounded-lg text-sm overflow-auto h-[400px] flex items-start justify-center">
         {paginatedMovements.length > 0 ? (
           <table className="w-full bg-white">

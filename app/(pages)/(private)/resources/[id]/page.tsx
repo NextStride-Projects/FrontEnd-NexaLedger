@@ -12,6 +12,7 @@ export default function ResourceDetailsID() {
   const { id } = useParams();
   const [resource, setResource] = useState(null);
   const [movements, setMovements] = useState<IMovementWithUsername[]>([]);
+  const [lastMovement, setLastMovement] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("detalles");
@@ -30,7 +31,7 @@ export default function ResourceDetailsID() {
 
     const fetchMovementsWithUsernames = async () => {
       try {
-        const token = getCookie("token"); 
+        const token = getCookie("token");
         const movementsResponse = await axios.get(`/api/movement/${id}`);
         const movements = movementsResponse.data;
 
@@ -55,6 +56,11 @@ export default function ResourceDetailsID() {
         );
 
         setMovements(movementsWithUsernames);
+
+        // Extract the latest movement timestamp
+        const latestMovement = movementsWithUsernames
+          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+        setLastMovement(latestMovement?.timestamp || null);
       } catch (error) {
         setErrorMessage("Error fetching movements data.");
       }
@@ -76,8 +82,7 @@ export default function ResourceDetailsID() {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between mb-6">
-        <h1 className="text-lg font-bold">Resource Details</h1>
+      <div className="flex justify-end mb-6">
         <div className="flex gap-4">
           <a
             href="/resources"
@@ -93,29 +98,33 @@ export default function ResourceDetailsID() {
           </a>
         </div>
       </div>
-      <div className="flex items-center gap-4 mb-6">
+
+      <div className="relative flex items-center gap-4 mb-4">
+        <div className="absolute bottom-0 left-0 right-0 border-b border-primaryColor z-0"></div>
+
         <button
           onClick={() => handleTabClick("detalles")}
-          className={`px-6 py-2 ${
+          className={`px-4 py-2 text-sm font-medium transition-all duration-300 relative z-10 ${
             activeTab === "detalles"
-              ? "text-blue-500 border-b-2 border-blue-500"
-              : "text-gray-500"
+              ? "border border-green-800 border-b-white bg-white rounded-t text-black"
+              : "border border-green-800 text-gray-500 bg-gray-100 hover:text-black rounded-t"
           }`}
         >
-          Details
+          Detalles del recurso
         </button>
         <button
           onClick={() => handleTabClick("movimientos")}
-          className={`px-6 py-2 ${
+          className={`px-4 py-2 text-sm font-medium transition-all duration-300 relative z-10 ${
             activeTab === "movimientos"
-              ? "text-blue-500 border-b-2 border-blue-500"
-              : "text-gray-500"
+              ? "border border-green-800 border-b-white bg-white rounded-t text-black"
+              : "border border-green-800 text-gray-500 bg-gray-100 hover:text-black rounded-t"
           }`}
         >
-          Movements
+          Movimientos del recurso
         </button>
       </div>
-      {activeTab === "detalles" && <ResourceDetails resource={resource} />}
+
+      {activeTab === "detalles" && <ResourceDetails resource={resource} latesMovementDate={lastMovement} />}
       {activeTab === "movimientos" && <Movements movements={movements} />}
     </div>
   );

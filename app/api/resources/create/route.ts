@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { IResource } from "@/app/utils/interfaces/resources/resources";
-import { any } from "zod";
+import { IMovement } from "@/app/utils/interfaces/movement/movement";
+
 
 export async function POST(req: Request): Promise<NextResponse> {
-  const url = `http://localhost:7004/api/Resource`;
+  const resourceUrl = `http://localhost:7004/api/Resource`;
+  const movementUrl = `http://localhost:3000/api/movement/create`;
 
   try {
     const token = req.headers.get("authorization")?.replace("Bearer ", "");
+    const cookie = req.headers.get("cookie");
 
     if (!token) {
       return NextResponse.json(
@@ -15,9 +18,15 @@ export async function POST(req: Request): Promise<NextResponse> {
       );
     }
 
+    if (!cookie) {
+      return NextResponse.json(
+        { message: "Authentication cookies are missing" },
+        { status: 401 }
+      );
+    }
+
     const body: Partial<IResource> = await req.json();
 
-    // Validate the required fields
     if (
       !body.name ||
       !body.description ||
@@ -32,7 +41,6 @@ export async function POST(req: Request): Promise<NextResponse> {
       );
     }
 
-    // Prepare payload for the API
     const payload = {
       name: body.name,
       description: body.description,
@@ -42,10 +50,10 @@ export async function POST(req: Request): Promise<NextResponse> {
       saleAvailability: body.saleAvailability,
       price: body.price,
       size: body.size,
-      image: body.image || "", // Default empty string if image is missing
+      image: body.image || "",
     };
 
-    const response = await fetch(url, {
+    const resourceResponse = await fetch(resourceUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -54,13 +62,35 @@ export async function POST(req: Request): Promise<NextResponse> {
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      throw new Error(`Failed to create resource: ${response.statusText}`);
+    if (!resourceResponse.ok) {
+      throw new Error(`Failed to create resource: ${resourceResponse.statusText}`);
     }
 
-    const data = await response.json();
+    const resourceData = await resourceResponse.json();
 
-    return NextResponse.json(data, { status: 201 });
+    const movementPayload: Omit<IMovement, "id" | "timestamp" > = {
+      resourceId: resourceData.id,
+      userId: resourceData.userId,
+      type: "Registro",
+      description: "Creación del recurso en la aplicación",
+    };
+
+    const movementResponse = await fetch(movementUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: cookie,
+      },
+      body: JSON.stringify(movementPayload),
+    });
+
+    if (!movementResponse.ok) {
+      console.warn(
+        `Movement creation failed: ${movementResponse.statusText}`
+      );
+    }
+
+    return NextResponse.json(resourceData, { status: 201 });
   } catch (error) {
     console.error("Error creating resource:", error);
 

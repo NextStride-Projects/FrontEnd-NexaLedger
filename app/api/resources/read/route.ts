@@ -26,7 +26,7 @@ export async function GET(req: Request): Promise<NextResponse> {
       const response = await axios.get(`http://localhost:7004/api/Resource/${id}`, {
         headers,
       });
-      console.log(response.data);
+
       return NextResponse.json(response.data, { status: 200 });
     } else {
       const response = await axios.get(`http://localhost:7004/api/Resource/`, {

@@ -100,8 +100,6 @@ export default function EditResource() {
         throw new Error("Token de autenticación no encontrado.");
       }
 
-      console.log(formData)
-
       const response = await axios.put(
         `/api/resources/${id}`,
         { ...formData, id },

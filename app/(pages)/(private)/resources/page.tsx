@@ -13,7 +13,6 @@ export default function ClientInventory() {
     const fetchResources = async () => {
       try {
         const token = getCookie("token");
-        console.log(token);
         if (!token) {
           throw new Error("Token de autenticación no encontrado.");
         }
