@@ -4,6 +4,7 @@ import React from "react";
 import { HiLogout } from "react-icons/hi";
 import { useRouter } from "next/navigation";
 import Button from "../Button/Button";
+import Sidebar from "./Sidebar";
 
 const TopBar = () => {
   const router = useRouter();
@@ -22,10 +23,11 @@ const TopBar = () => {
         position: "fixed",
         top: 0,
         left: 0,
+        zIndex:5000
       }}
     >
       <div className="justify-between flex w-full px-5 ml-[40px]">
-        <h1 className="font-bold text-lg">NexaLedger</h1>
+        <h1 className="font-bold self-center text-lg">NexaLedger</h1>
 
         <Button
           className="font-bold py-1 px-3 flex border-none items-center gap-2"
@@ -34,6 +36,7 @@ const TopBar = () => {
           variant="primary"
         />
       </div>
+      <Sidebar/>
     </div>
   );
 };

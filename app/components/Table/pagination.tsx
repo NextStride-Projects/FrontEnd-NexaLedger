@@ -12,7 +12,7 @@ export default function Pagination({
   setCurrentPage,
 }: PaginationProps) {
   return (
-    <div className="flex justify-center space-x-2">
+    <div className="flex justify-center space-x-2 mt-4">
       {Array.from({ length: totalPages }, (_, index) => (
         <button
           key={index}
